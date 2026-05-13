@@ -1,0 +1,48 @@
+entity_id: state_chip_statistic
+name: StateChipStatistic
+status: mapped
+priority: medium
+
+summary: >
+  Contador agregado diario de uso de un StateChip. Permite leer adopcion de
+  ramas guiadas, desvio a soporte y frecuencia de seleccion sin almacenar cada
+  click como evento independiente.
+
+backend_model:
+  - saldo/app/Transactions/StateChips/StateChipStatistics/StateChipStatistic.php
+  - saldo/app/Transactions/StateChips/Jobs/IncrementStateChipUsageJob.php
+  - saldo/database/migrations/2024_01_23_134822_create_state_chip_statistics.php
+
+key_attributes:
+  - state_chip_id
+  - date
+  - qty
+  - id
+
+key_relationships:
+  - stateChip
+
+aggregation:
+  grain: daily_per_state_chip
+  unique_key:
+    - state_chip_id
+    - date
+  update_strategy: insert_or_increment
+
+important_limits:
+  - not_per_user
+  - not_per_session
+  - not_a_resolution_metric
+  - requires_context_from_state_or_task
+
+connected_entities:
+  - state_chip
+  - state_chip_content
+  - state
+
+connected_domains:
+  - support-and-operations
+  - transactions
+
+connected_flows:
+  - chat-state-chips-and-support-actions

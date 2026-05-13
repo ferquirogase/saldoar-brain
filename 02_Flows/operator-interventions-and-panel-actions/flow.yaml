@@ -1,0 +1,72 @@
+flow_id: flow-operator-interventions-and-panel-actions
+name: Operator interventions and panel actions
+status: v1
+owner_area: operations
+evidence_level: confirmed
+abstract: |
+  Explica cómo los operadores intervienen en transacciones desde el panel interno.
+  Cubre los tipos de tarea y sus pipelines de acción, las reglas de asignación y
+  reasignación, cómo las respuestas de operadores generan texto público visible para
+  el usuario, el rol de bots en el manejo temporal de tareas, y las restricciones
+  para transacciones de origen deals-bag. Relevante para operaciones y soporte para
+  entender qué pueden hacer los operadores y sus limitaciones.
+query_patterns:
+  - "¿qué puede hacer un operador sobre una transacción?"
+  - "¿cómo resuelve soporte un pedido bloqueado?"
+  - "¿qué es una tarea en el sistema?"
+  - "¿quién atiende las tareas de soporte?"
+  - "¿por qué hay un bot trabajando en mi pedido?"
+  - "un operador respondió pero el pedido no avanzó"
+  - "¿qué limitaciones tienen los operadores con pedidos de deals?"
+  - "¿cómo se asigna una tarea a un operador?"
+entry_points:
+  - /panel/transactions/tasks/reply
+  - /panel/transactions/task_completed
+  - /panel/transactions/reply_text
+  - /panel/state-chips/close-chat/{transaction_id}/{transaction_mid}
+  - state and listener driven task creation
+frontend_sources:
+  - no main user-facing frontend surface; operational behavior is driven from panel routes and visible later in user transaction views
+backend_sources:
+  - saldo/routes/panel.php
+  - saldo/app/Transactions/Tasks/PanelTaskController.php
+  - saldo/app/View/Controllers/Transactions/PanelTaskReplyTextController.php
+  - saldo/app/Transactions/Tasks/TaskService.php
+  - saldo/app/Transactions/Tasks/TaskTypesEnum.php
+  - saldo/app/Transactions/Helpers/StatesAndTasks/TransactionStateHelper.php
+  - saldo/app/Transactions/Actions/ActionRequest.php
+  - saldo/app/Users/Operators/OperatorTaskHelper.php
+  - saldo/app/Transactions/Tasks/OnlyAssignedCanRemoveTasksCreatedBySystemObserver.php
+  - saldo/app/Transactions/States/StatePanelRepository.php
+  - saldo/app/Transactions/Actions/Held.php
+  - saldo/app/Transactions/Actions/AddDirectTransfers.php
+  - saldo/app/Transactions/Actions/AdjustAndCreditWithDirectTransfers.php
+entities:
+  - task
+  - state
+  - transaction
+  - operator
+  - action_request
+business_rules:
+  - each task_type maps to an action pipeline, not just a single mutation
+  - operator actions usually materialize as new states and may also create more tasks
+  - unassigned tasks can be claimed by the first operator who replies
+  - some system-created tasks can only be completed by the assigned operator or author
+  - operator replies can generate public text, open chat and reassign work
+  - some operational actions are forbidden or constrained for specific transaction origins such as deals-bag transactions
+  - bots may temporarily own tasks before releasing them back to humans
+integrations:
+  - panel routes and legacy movimiento view
+  - chat availability control
+  - bot-assisted task handling
+  - notification and state systems
+edge_cases:
+  - failed operational attempts may fallback into HELD
+  - task base state can change while an operator is working
+  - public panel replies alter user-visible experience
+  - mixed bot-human ownership can obscure who really moved a transaction
+unknowns:
+  - full usage surface of every task_type in panel UI
+  - undocumented actions from the task catalog not inspected here
+  - richer reassignment and role-based routing rules
+  - deeper metrics and audit trails for operator actions

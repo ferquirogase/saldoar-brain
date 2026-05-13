@@ -1,0 +1,81 @@
+flow_id: flow-chat-state-chips-and-support-actions
+name: Chat, state chips and support actions
+status: v1
+owner_area: transactions
+evidence_level: confirmed
+abstract: |
+  Explica el sistema de comunicación y acción dentro de una transacción. Cubre los
+  state chips (botones contextuales que cambian según el estado), la disponibilidad
+  del chat controlada por backend, los helpers priorizados por transacción, cómo
+  los chips pueden disparar acciones sobre la transacción, y cómo los mensajes libres
+  del usuario generan tareas para operadores. Es el principal canal de soporte in-app
+  de Saldoar.
+query_patterns:
+  - "¿cómo contacto a soporte desde mi pedido?"
+  - "no me aparece el chat en la transacción"
+  - "¿qué son los botones que aparecen en la pantalla del pedido?"
+  - "¿qué son los state chips?"
+  - "¿puedo escribir un mensaje en mi pedido?"
+  - "presioné un botón y no pasó nada"
+  - "¿por qué cambian las opciones según el estado del pedido?"
+  - "¿cómo llega mi mensaje a un operador?"
+  - "el chat está visible pero no puedo escribir"
+entry_points:
+  - /my/dashboard/transactions/...
+  - /t/transactions/...
+  - GET /v3/users/{user_id}/state_chips/{transaction_id}
+  - GET /v3/t/state_chips/{transaction_id}
+  - GET /v3/users/{user_id}/is-chat-available/{transaction_id}
+  - GET /v3/t/is-chat-available/{transaction_id}
+frontend_sources:
+  - solido/apps/solido-app/src/app/transactions/components/state-chat/state-chat.component.ts
+  - solido/apps/solido-app/src/app/transactions/components/state-chat/state-chat.component.html
+  - solido/apps/solido-app/src/app/core/services/state-chips.service.ts
+  - solido/apps/solido-app/src/domain/use-cases/search-transaction-helpers-use-case.ts
+  - solido/apps/solido-app/src/domain/entities/transaction-helper.ts
+backend_sources:
+  - saldo/routes/api.php
+  - saldo/app/Transactions/StateChips/ChatController.php
+  - saldo/app/Transactions/StateChips/StateChatService.php
+  - saldo/app/Transactions/StateChips/StateChipController.php
+  - saldo/app/Transactions/StateChips/TransactionStateChipsService.php
+  - saldo/app/Transactions/StateChips/Jobs/HandleReceivedStateChipJob.php
+  - saldo/app/Transactions/StateChips/Jobs/HandleReceivedAnswerableStateChip.php
+  - saldo/app/Transactions/TransactionHelpers/TransactionHelperJsonApi/TransactionHelperService.php
+  - saldo/app/Transactions/TransactionHelpers/TransactionHelperJsonApi/TransactionHelperContainerJsonApiEntity.php
+  - saldo/app/Transactions/TransactionHelpers/Containers/HelpersContainerRepository.php
+  - saldo/app/Transactions/States/States/HandlePublicTextObserver.php
+  - saldo/app/Transactions/States/Jobs/MergePublicTextAndCreateAnOperatorTaskJob.php
+  - saldo/app/Transactions/Transactions/TransactionStateObserver.php
+entities:
+  - transaction_helper
+  - state_chip
+  - state
+  - state_action
+  - file
+  - task
+business_rules:
+  - backend exposes up to two prioritized helpers for a transaction based on transaction state
+  - state chips are selected by transaction state, optional parent chip and system group compatibility
+  - special support and go-back chips are injected when needed
+  - chat input is enabled only when StateChatService marks the transaction as chat-available
+  - selecting a chip creates a public state with state_chip_id and may trigger transaction actions, canned answers, analytics and chat opening
+  - free-text user messages are merged and can create operator tasks
+  - selected chip navigation is reset when transaction state changes
+integrations:
+  - websocket updates for states
+  - file upload for screenshots and attachments
+  - operator task creation
+  - adaptive content rendering
+  - cache-backed chat availability and chip navigation
+edge_cases:
+  - same nominal transaction state can yield different helpers and chips
+  - users may see a chat area but still be unable to type until backend opens chat
+  - chip navigation depends on cache and resets on state changes
+  - support chips can alter the flow even when no domain-specific chips are available
+  - merged user messages may compress multiple separate intents into one operational task
+unknowns:
+  - full state chip catalog and tree structure
+  - complete list of transaction actions triggered by chips
+  - all listeners and jobs that open or close chat
+  - all front surfaces that consume helper1 and helper2

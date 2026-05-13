@@ -1,0 +1,53 @@
+entity_id: system
+name: System
+status: mapped
+priority: high
+
+summary: >
+  Entidad que modela un método operativo de Saldoar. Define moneda, grupo,
+  market, tipo de cuenta, redes, fees, mínimos y habilitación de ramas operativas.
+
+backend_model:
+  - saldo/app/Systems/Systems/System.php
+  - saldo/app/Systems/Systems/SystemEnum.php
+
+frontend_model:
+  - solido/apps/solido-app/src/app/core/resources/system.ts
+
+key_attributes:
+  - id
+  - name
+  - group_id
+  - currency_id
+  - market
+  - account_type
+  - default_network_id
+  - envia
+  - recibo
+  - requirecuenta1
+  - requirecuenta2
+  - direct_transfers_enabled
+  - direct_transfer_min_amount
+  - minimum_usd1
+  - minimum_usd2
+  - time_average
+
+key_relationships:
+  - currency
+  - group
+  - networks
+  - banks
+  - bankAccountTypes
+  - systemInformation
+
+connected_domains:
+  - systems-and-integrations
+  - transactions
+  - accounts
+  - agreements
+
+connected_flows:
+  - system-specific-branches
+  - accounts-and-destination-selection
+  - payment-instructions
+  - create-transaction-and-next-step

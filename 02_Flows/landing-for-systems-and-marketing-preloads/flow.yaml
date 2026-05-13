@@ -1,0 +1,83 @@
+flow_id: flow-landing-for-systems-and-marketing-preloads
+name: Landing for systems and marketing preloads
+status: v1
+owner_area: growth
+evidence_level: confirmed
+abstract: |
+  Explica como Saldoar usa rutas publicas, landings SEO y links de marketing
+  para precargar sistemas, idioma, copy y metadatos antes de entrar al core de
+  cotizacion. Sirve para entender de donde sale un par preseleccionado, por que
+  un link historico puede redirigir a otro sistema y como se conserva o corrige
+  el contexto entre URL, sesion y calculadora.
+query_patterns:
+  - "como marketing manda a una cotizacion precargada"
+  - "por que este link abre un par de sistemas ya elegido"
+  - "como funciona comprar vender sistema"
+  - "por que un link viejo abre otro metodo"
+  - "de donde sale el sistema por defecto de una landing"
+  - "como se conserva la cotizacion entre home y landing"
+  - "por que paypal abre una landing distinta"
+  - "como cambia el idioma o canonical en las landings"
+entry_points:
+  - /
+  - /a/{system1}/{system2}/{amount1}/{amount2}
+  - /b/{system1}/{system2}/{amount1}/{amount2}
+  - /comprar-vender/{system}
+  - /retirar-cobrar-paypal-a-pesos-argentina
+  - /comprar-recargar-saldo-paypal-argentina
+  - localized public routes with langCode prefix
+front_routes:
+  - solido public home and step-b
+  - solido landing-for-systems
+  - solido landing-marketing
+  - header and public locale navigation
+backend_routes:
+  - GET JSON:API systems with rates, networks and system_information
+  - public best_rates and systems websocket events
+frontend_sources:
+  - solido/apps/solido-app/src/app/app-routing.module.ts
+  - solido/apps/solido-app/src/app/home/home.component.ts
+  - solido/apps/solido-app/src/app/home/home-step-b.component.ts
+  - solido/apps/solido-app/src/app/home/home-url.matcher.ts
+  - solido/apps/solido-app/src/app/home/home-step-b-url.matcher.ts
+  - solido/apps/solido-app/src/app/transactions/transaction-url.service.ts
+  - solido/apps/solido-app/src/app/core/services/quote-session.service.ts
+  - solido/apps/solido-app/src/app/core/helpers/replace-system.helper.ts
+  - solido/apps/solido-app/src/app/core/components/header/header.component.ts
+  - solido/apps/solido-app/src/app/landing-for-systems/landing-for-systems.component.ts
+  - solido/apps/solido-app/src/app/wiki/landing-marketing/landing-marketing.component.ts
+  - solido/apps/solido-app/src/app/socket/services/public-socket.service.ts
+backend_sources:
+  - saldo/app/Systems/Systems/SystemSchema.php
+  - saldo/app/Systems/Rates/Rates/JsonRatesController.php
+  - saldo/app/Systems/Rates/BestRates/BestRateService.php
+  - saldo/app/Core/Events/Solido/SystemsUpdatedEvent.php
+  - saldo/app/Core/Events/Solido/BestRatesUpdatedEvent.php
+entities:
+  - system
+  - transaction
+  - rate
+  - system_information
+integrations:
+  - sockets-websocket
+  - mercadopago
+  - quote session persistence
+  - public locale strategy
+  - SEO and OG metadata
+business_rules:
+  - public URLs can bootstrap the calculator without login and can carry explicit system and amount context
+  - if a system has replacement_system_id the visible route can be rewritten to the active system
+  - landing-for-systems uses a single system slug and resolves marketing or SEO content around that system before entering exchange
+  - landing-marketing is a curated surface with fixed pairs and copy, not a generic pair resolver
+  - when URL context is missing, QuoteSession can rehydrate a previous public quote and keep the user inside the same journey
+  - locale, canonical URL and OG metadata are updated as part of navigation, not only as static page config
+edge_cases:
+  - a stale marketing URL can still open a valid path because replacement systems rewrite legacy ids
+  - home and step-b can restore quote context from in-memory session even if the current URL no longer carries full parameters
+  - a landing may look static but still depends on live systems, rates or replacement ids from backend
+  - country and lang logic can change the visible URL or canonical without changing the underlying pair
+  - landing-marketing currently covers specific curated cases and should not be assumed to represent all public acquisition paths
+unknowns:
+  - complete inventory of active paid or SEO campaigns that still depend on these preload routes
+  - current production weight of legacy a routes versus newer b routes
+  - which historical public links are still intentionally preserved for acquisition instead of only for backwards compatibility

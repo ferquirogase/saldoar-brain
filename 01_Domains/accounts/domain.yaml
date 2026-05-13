@@ -1,0 +1,47 @@
+domain_id: accounts
+name: Accounts
+status: mapped
+priority: high
+
+summary: >
+  Dominio que modela cuentas base, account details, direcciones, validadores y
+  restricciones de acceso o completitud que afectan como un pedido puede operar.
+
+owns:
+  - accounts
+  - account details
+  - addresses
+  - bank and bank account type metadata
+  - account validators by account type
+  - crypto network-linked account behavior
+  - account visibility rules by context
+
+backend_surface:
+  - saldo/app/Accounts
+  - saldo/app/Transactions/Transactions/TransactionPublicPolicy.php
+  - saldo/app/Transactions/Transactions/TransactionWithTokenPolicy.php
+  - saldo/app/Transactions/TransactionHelpers/HelperRepositories/AccountDetailRequiredHelperRepository.php
+
+frontend_surface:
+  - solido/apps/solido-app/src/app/dashboard/accounts
+  - solido/apps/solido-app/src/app/transactions/pages/user-info/account-details
+  - solido/apps/solido-app/src/app/core/account-service-provider
+
+core_entities:
+  - Account
+  - AccountDetail
+  - Address
+  - Bank
+  - BankAccountType
+
+connected_domains:
+  - transactions
+  - validations
+  - systems-and-integrations
+
+connected_flows:
+  - accounts-and-destination-selection
+  - public-order-creation-and-identity-bootstrap
+  - payment-instructions
+  - identity-validations
+  - system-specific-branches

@@ -1,0 +1,58 @@
+entity_id: state
+name: State
+status: mapped
+priority: critical
+
+summary: >
+  Entidad de historial y situación de la transacción. Guarda el cambio de estado,
+  textos públicos/privados y conexiones con tareas o acciones contextuales.
+
+backend_model:
+  - saldo/app/Transactions/States/State.php
+  - saldo/app/Transactions/States/StateEnum.php
+
+key_attributes:
+  - transaction_id
+  - author_id
+  - state
+  - public_text
+  - private_text
+  - state_chip_id
+  - state_action_id
+  - state_action_resource_id
+  - notified
+  - is_public
+  - state_reason_id
+
+main_enum_values:
+  - NONE
+  - CANCELED
+  - TO_NEW_TICKET
+  - TO_FUTURE
+  - TO_FUTURE_READY
+  - HELD_DISPUTED
+  - HELD
+  - WAITING_PAYMENT
+  - CREDITED_PAYMENT
+  - VALIDATION_REQUIRED
+  - SCAMMED
+  - PRE_APPROVED_SENT
+  - SENT
+  - MEDIATION
+
+key_relationships:
+  - transaction
+  - author
+  - tasks
+  - files
+
+connected_domains:
+  - transactions
+  - support-and-operations
+  - validations
+
+connected_flows:
+  - transaction-visibility-and-status
+  - chat-state-chips-and-support-actions
+  - cancellation-held-mediation-recovery
+  - notifications-mails-and-background-jobs

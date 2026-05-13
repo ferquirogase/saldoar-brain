@@ -1,0 +1,37 @@
+integration_id: mercadopago
+name: MercadoPago
+status: mapped
+priority: high
+
+summary: >
+  Integracion usada por Saldoar para generar QR de pago en la rama de
+  agreement asociada a mercadopago_credito. Cambia el tipo de instruccion, usa
+  cache y depende de que el acuerdo tenga address operativa lista.
+
+backend_surface:
+  - saldo/app/Transactions/Http/MercadoPagoQrController.php
+  - saldo/app/Transactions/ExternalProcessors/MercadoPago/MercadoPagoQr.php
+  - saldo/app/Transactions/ExternalProcessors/MercadoPago/MercadoPagoParams.php
+
+frontend_surface:
+  - solido/apps/solido-app/src/domain/use-cases/search-qr-agreement-use-case.ts
+  - solido/apps/solido-app/src/ui/pages/instructions/components/transfer-agreement/transfer-agreement.component.ts
+  - solido/apps/solido-app/src/ui/pages/instructions/components/transfer-agreement/transfer-agreement-view-model.service.ts
+
+query_patterns:
+  - "de donde sale el qr de mercadopago"
+  - "por que no aparece el qr"
+  - "como funciona mercadopago en saldoar"
+  - "cuando un pedido usa qr en vez de cuentas"
+  - "que valida backend antes de devolver el qr"
+
+connected_flows:
+  - payment-instructions
+  - system-specific-branches
+
+failure_modes:
+  - agreement_address_missing
+  - wrong_system_for_qr
+  - transaction_ownership_mismatch
+  - external_provider_failure
+  - rate_limit_pressure

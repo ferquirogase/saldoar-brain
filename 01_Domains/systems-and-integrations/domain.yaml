@@ -1,0 +1,48 @@
+domain_id: systems-and-integrations
+name: Systems And Integrations
+status: mapped
+priority: high
+
+summary: >
+  Dominio que modela sistemas, redes, groups, rates, fees e integraciones
+  externas que alteran el comportamiento operativo del producto.
+
+owns:
+  - system catalog
+  - system groups
+  - networks and currencies
+  - rates and fees
+  - system information for product
+  - external processors and integrations
+
+backend_surface:
+  - saldo/app/Systems
+  - saldo/app/Transactions/ExternalProcessors
+  - saldo/app/External
+  - saldo/app/CryptoCore
+
+frontend_surface:
+  - solido/apps/solido-app/src/app/core/account-service-provider
+  - solido/apps/solido-app/src/app/transactions
+  - system-specific landing routes
+
+core_entities:
+  - System
+  - Group
+  - Network
+  - Currency
+  - Rate
+  - Fee
+  - SystemInformation
+
+connected_domains:
+  - transactions
+  - validations
+  - support-and-operations
+
+connected_flows:
+  - payment-instructions
+  - accounts-and-destination-selection
+  - deals-and-direct-transfer-matching
+  - system-specific-branches
+  - public-order-creation-and-identity-bootstrap

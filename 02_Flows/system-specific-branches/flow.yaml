@@ -1,0 +1,172 @@
+flow_id: system-specific-branches
+name: System Specific Branches
+status: mapped
+priority: high
+scope: core
+
+summary: >
+  Mapa transversal de las ramas del core que cambian segun sistema o mercado:
+  agreement vs direct transfers, crypto, MercadoPago QR, PIX, VCC, PayPal, Wise
+  y destinos bancarios con account details.
+
+goal:
+  - explain why similar orders can diverge materially
+  - preserve system-level differences that affect decisions
+  - avoid treating all systems as a single generic flow
+
+main_branching_logic:
+  - Agreement path if agreement1_id exists
+  - Direct transfer path if agreement1_id is null
+  - Additional system-specific behavior by system1, system2 or market
+
+branches:
+  - branch_id: agreement-vs-direct-transfers
+    trigger:
+      - agreement1_id > 0
+      - agreement1_id is null
+    impact:
+      - changes waiting payment notifications
+      - changes instruction style
+      - changes whether user works with direct transfers and screenshots
+
+  - branch_id: crypto-origin
+    trigger:
+      - system1.market = crypto
+    impact:
+      - special waiting payment instructions
+      - network confirmation logic
+      - screenshot path differs from standard direct transfers
+    components:
+      - ToWaitingPaymentOrCreditWhenItsCrypto
+      - WaitingBitcoin
+      - AddStateWeWaitYourScreenshots
+
+  - branch_id: mercadopago-credito-qr
+    trigger:
+      - system1_id = mercadopago-credito
+    impact:
+      - QR endpoint and QR generation
+      - requires ready agreement address
+      - support issue if QR is requested too early
+    components:
+      - MercadoPagoQrController
+      - MercadoPagoQr
+
+  - branch_id: pix-destination
+    trigger:
+      - system2_id = pix
+    impact:
+      - external PIX key validation
+      - invalid key may move transaction to HELD
+      - frontend account input uses PIX-specific validator
+    components:
+      - ValidatePixAddressListener
+      - ValidatePixAddressOrHeldUseCase
+      - PixAccountValidator
+
+  - branch_id: vcc-destination
+    trigger:
+      - system2_id = vcc
+    impact:
+      - dedicated frontend route and content
+      - pre-approved generation stage
+      - post-credit loading instructions and verification code
+      - destination copy differs from standard transfers
+    components:
+      - DispatchRequestAVccJobListener
+      - TransactionPreApprovedSentStateNotification
+      - CreditedVcc
+      - InstructionsToLoadVccNotification
+      - TransactionSentStateNotification
+
+  - branch_id: paypal-frictions
+    trigger:
+      - system1_id = palpal
+      - system2_id = palpal
+    impact:
+      - operational task on new or long-unused payer account
+      - extra pending-payment guidance
+      - retention guidance in sent notification
+    components:
+      - CreateATaskWhenEmailAccountIsDifferentAndIsNewListener
+      - CreditedWithPendingDirectTransfers
+      - TransactionSentStateNotification
+
+  - branch_id: wise-first-time
+    trigger:
+      - system2_id in [wise_eur, wise_usd]
+    impact:
+      - first-time activation warning for destination account
+      - extra state and template notification
+    components:
+      - NotifyIfIsTheFirstTimeWithWiseListener
+
+  - branch_id: bank-like-destinations
+    trigger:
+      - account2 requires bank-like account details
+    impact:
+      - may require account details before payment continues
+      - can warn about split payments and banking delays
+      - special sent-state timing expectations
+    components:
+      - CreditedBank
+      - TransactionSentStateNotification
+
+frontend_surfaces:
+  - transaction-vcc route
+  - waiting-payment-crypto component
+  - PIX account validator
+  - transaction instructions and waiting payment views
+
+ux_implications:
+  - The product is one interface but several operational sub-products.
+  - Copy, expectations and recovery paths must be system-aware.
+  - Support answers are often wrong if they ignore system-specific behavior.
+
+query_patterns:
+  - "¿por qué el pedido de crypto funciona diferente?"
+  - "¿cómo pago con PIX?"
+  - "¿qué es el QR de MercadoPago?"
+  - "¿qué es VCC?"
+  - "¿por qué con PayPal hay pasos adicionales?"
+  - "¿por qué el mismo tipo de pedido se ve diferente según el sistema?"
+  - "el QR no aparece, ¿qué hago?"
+  - "¿qué pasa si la dirección PIX es inválida?"
+  - "¿qué sistemas de pago soporta Saldoar?"
+  - "¿por qué con Wise hay una notificación especial la primera vez?"
+
+out_of_scope:
+  - balance
+  - full catalog of every low-frequency or legacy system
+
+connected_flows:
+  - payment-instructions
+  - identity-validations
+  - chat-state-chips-and-support-actions
+  - cancellation-held-mediation-recovery
+  - operator-interventions-and-panel-actions
+  - accounts-and-destination-selection
+
+references:
+  - saldo/app/Transactions/Notifications/StateNotifications/TransactionWaitingPaymentNotification.php
+  - saldo/app/Transactions/Notifications/StateNotifications/TransactionWaitingPaymentNotifications/TransactionToAgreementNotification.php
+  - saldo/app/Transactions/Notifications/StateNotifications/TransactionWaitingPaymentNotifications/TransactionToDirectTransfersNotification.php
+  - saldo/app/Transactions/Actions/ToWaitingPaymentOrCreditWhenItsCrypto.php
+  - saldo/app/Transactions/Notifications/StateNotifications/SpecialMethod/WaitingBitcoin.php
+  - saldo/app/Transactions/Http/MercadoPagoQrController.php
+  - saldo/app/Transactions/ExternalProcessors/MercadoPago/MercadoPagoQr.php
+  - saldo/app/Transactions/Transactions/Listeners/ValidatePixAddressListener.php
+  - saldo/app/Transactions/Transactions/UseCases/ValidatePixAddressOrHeldUseCase.php
+  - saldo/app/Transactions/Listeners/DispatchRequestAVccJobListener.php
+  - saldo/app/Transactions/Notifications/StateNotifications/TransactionPreApprovedSentStateNotification.php
+  - saldo/app/Transactions/Notifications/StateNotifications/SpecialMethod/CreditedVcc.php
+  - saldo/app/Transactions/Notifications/InstructionsToLoadVccNotification.php
+  - saldo/app/Transactions/Listeners/NotifyIfIsTheFirstTimeWithWiseListener.php
+  - saldo/app/Transactions/Listeners/CreateATaskWhenEmailAccountIsDifferentAndIsNewListener.php
+  - saldo/app/Transactions/Notifications/StateNotifications/SpecialMethod/CreditedWithPendingDirectTransfers.php
+  - saldo/app/Transactions/Notifications/StateNotifications/TransactionSentStateNotification.php
+  - saldo/app/Transactions/Notifications/StateNotifications/SpecialMethod/CreditedBank.php
+  - solido/apps/solido-app/src/app/transactions/pages/transaction-vcc/transaction-vcc.component.ts
+  - solido/apps/solido-app/src/app/transactions/pages/transaction-info/transaction-operation-data/waiting-payment/waiting-payment-crypto/waiting-payment-crypto.component.ts
+  - solido/apps/solido-app/src/app/core/account-service-provider/account-service-provider.ts
+  - solido/apps/solido-app/src/app/core/account-service-provider/accounts-validators/pix-account-validator.ts

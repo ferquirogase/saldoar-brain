@@ -1,0 +1,27 @@
+entity_id: entity-example
+name: Example entity
+status: draft
+priority: medium
+
+summary: >
+  Explicacion corta de la entidad, su rol y por que importa para negocio,
+  soporte, UX o agentes.
+
+backend_model: []
+frontend_surface: []
+source_of_truth: []
+
+key_attributes: []
+key_relationships: []
+
+connected_entities: []
+connected_domains: []
+connected_flows: []
+
+review:
+  owner: unknown
+  confidence: medium
+  last_reviewed_at: YYYY-MM-DD
+  reviewed_against:
+    saldo: COMMIT_SHA
+    solido: COMMIT_SHA

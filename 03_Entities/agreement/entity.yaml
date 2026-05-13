@@ -1,0 +1,44 @@
+entity_id: agreement
+name: Agreement
+status: mapped
+priority: high
+
+summary: >
+  Entidad de acuerdo operativo reutilizable. Une cuenta, processor, fees y
+  habilitación por sentido, y puede cambiar el camino de una transacción.
+
+backend_model:
+  - saldo/app/Agreements/Agreement.php
+  - saldo/app/Agreements/AgreementPanelRepository.php
+  - saldo/app/Agreements/SyncTransactionWithAgreementsJob.php
+  - saldo/app/Agreements/UpdateAgreementAccountJob.php
+  - saldo/app/Transactions/Jobs/TransactionNextStepUseCase.php
+
+frontend_surface:
+  - transaction.attributes.agreement1_id
+  - transaction instruction branching by agreement presence
+
+key_attributes:
+  - id
+  - alias
+  - processor
+  - account_id
+  - fee1
+  - fee2
+  - enabled1
+  - enabled2
+
+key_relationships:
+  - account
+
+connected_domains:
+  - agreements
+  - transactions
+  - accounts
+  - systems-and-integrations
+
+connected_flows:
+  - create-transaction-and-next-step
+  - payment-instructions
+  - deals-and-direct-transfer-matching
+  - system-specific-branches

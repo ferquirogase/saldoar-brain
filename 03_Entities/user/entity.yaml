@@ -1,0 +1,55 @@
+entity_id: user
+name: User
+status: mapped
+priority: high
+
+summary: >
+  Entidad de identidad principal del cliente en Saldoar. Modela perfil, nivel,
+  riesgo, continuidad, balances y relaciones con cuentas, transacciones y validaciones.
+
+backend_model:
+  - saldo/app/Users/UserX.php
+  - saldo/app/Users/UserKeyV3Manager.php
+
+frontend_model:
+  - solido/apps/solido-app/src/app/core/resources/user.ts
+  - solido/apps/solido-app/src/app/core/resources/user-info.ts
+
+key_attributes:
+  - id
+  - email
+  - name
+  - alias
+  - phone_number
+  - level
+  - level_power
+  - flag_level
+  - isoperator
+  - has_balance
+  - referral_balance
+  - activation_code
+
+key_relationships:
+  - transactions
+  - accounts
+  - validations
+  - dealsBags
+  - dealsAlerts
+  - referralTransactions
+  - userFiscalData
+  - userMetadata
+  - userHistoricalLevels
+  - userPicture
+  - ips
+
+connected_domains:
+  - users
+  - transactions
+  - accounts
+  - validations
+
+connected_flows:
+  - public-order-creation-and-identity-bootstrap
+  - identity-validations
+  - deals-and-direct-transfer-matching
+  - concurrent-orders-and-omitted-transactions

@@ -1,0 +1,90 @@
+flow_id: flow-identity-validations
+name: Identity validations
+status: v1
+owner_area: validations
+evidence_level: confirmed
+abstract: |
+  Explica cómo Saldoar solicita, muestra y procesa validaciones de identidad. Cubre
+  los tipos de validación: DNI, selfie, Facebook, biométrica con Veriff y screenshot.
+  Incluye la diferencia entre validaciones de usuario y de transacción, los estados
+  que cambian la UI de carga a vista de estado, las reglas de bloqueo cuando hay una
+  validación en revisión, y el flujo biométrico con redirección a Veriff. Clave para
+  soporte y seguridad.
+query_patterns:
+  - "¿por qué me pide foto del documento?"
+  - "no puedo subir mi validación de identidad"
+  - "¿qué es la verificación biométrica?"
+  - "¿por qué me abre una pantalla externa para validar?"
+  - "¿cuándo se aprueba mi identidad?"
+  - "tengo una validación rechazada, ¿qué hago?"
+  - "¿puedo subir otra validación mientras la anterior está en revisión?"
+  - "¿qué diferencia hay entre validación de usuario y de transacción?"
+  - "¿por qué me pide selfie?"
+  - "la validación de Facebook no pide archivos"
+entry_points:
+  - /my/dashboard/validations/{validationTypeId}
+  - /u/users/{userId}/{userKey}/{validationTypeId}
+  - GET /v3/validation_examples/{system_id}/{validation_type_id}
+  - GET /transactions/{transaction_mid}/{key}/has-pending-validation
+front_routes:
+  - file: solido/apps/solido-app/src/app/app-routing.module.ts
+    notes:
+      - user validation routes exist under /u
+  - file: solido/apps/solido-app/src/ui/shared/url-matcher/README.md
+    notes:
+      - documents matching dashboard validations and user validation urls
+frontend_sources:
+  - solido/apps/solido-app/src/ui/features/validations/README.md
+  - solido/apps/solido-app/src/ui/features/validations/services/create-validation.service.ts
+  - solido/apps/solido-app/src/ui/features/validations/components/create-validation/create-validation.component.ts
+  - solido/apps/solido-app/src/ui/features/validations/components/validation-type-content/validation-type-content.component.ts
+  - solido/apps/solido-app/src/ui/features/validations/components/validation-biometric/validation-biometric.component.ts
+  - solido/apps/solido-app/src/ui/features/validations/components/validation-biometric/validation-biometric-view-model.service.ts
+  - solido/apps/solido-app/src/domain/use-cases/validation/search-validation.usecase.ts
+  - solido/apps/solido-app/src/domain/use-cases/validation/create-pending-validation.usecase.ts
+  - solido/apps/solido-app/src/domain/use-cases/get-biometric-id-use-case.ts
+  - solido/apps/solido-app/src/ui/features/transactions/services/transaction-instructions-redirect-url-view-model.service.ts
+backend_routes:
+  - route: GET v3/validation_examples/{system_id}/{validation_type_id}
+  - route: GET /transactions/{transaction_mid}/{key}/has-pending-validation
+backend_sources:
+  - saldo/routes/api.php
+  - saldo/routes/panel.php
+  - saldo/app/Validations/UserValidationLinks/UserLinkValidationHelper.php
+  - saldo/app/Validations/Validations/Validation.php
+  - saldo/app/Validations/Validations/ValidationPolicy.php
+  - saldo/app/Validations/ValidationExamples/ValidationExampleController.php
+  - saldo/app/Validations/Validations/BiometricIdValidation/BiometricIdValidationService.php
+  - saldo/app/Validations/ValidationTypes/ValidationTypeIdEnum.php
+  - saldo/app/Core/Urls/Validations/ValidationKeyUrls.php
+  - saldo/app/Core/Urls/Validations/ValidationTokenUrls.php
+entities:
+  - validation
+  - validation_type
+  - file
+  - user_link_validation
+  - biometric_id_validation
+  - validation_examples
+business_rules:
+  - validations can target USER or TRANSACTION validables
+  - file uploader is hidden for facebook and biometric_id
+  - approved-like and in-review statuses switch the ui from upload mode to status mode
+  - backend prevents creating new validations when one is already in evaluation
+  - backend rewrites initial validation status through ValidatorProcessingService
+  - first screenshot validation on a transaction requires at least as many submitted files as directTransfers1
+  - screenshot validation also rejects duplicate files when unique md5 count is below required transfers
+  - biometric validation launches a Veriff session and redirects back after finish or cancel
+integrations:
+  - veriff embedded flow
+  - websocket validation updates
+  - validation examples asset directory
+edge_cases:
+  - public key-based and dashboard token-based validation links coexist
+  - screenshot is transaction-scoped while most identity validations are user-scoped
+  - helper returns the first pending/rejected/in-review validation link, which may not always be the best UX target
+  - facebook and biometric validations break the normal upload-file mental model
+unknowns:
+  - exact behavior of ValidatorProcessingService by validable type
+  - complete lifecycle from external biometric decision to final validation status
+  - full handling of audit and video_call validation types
+  - potential differences between dashboard and public-key copy or error handling

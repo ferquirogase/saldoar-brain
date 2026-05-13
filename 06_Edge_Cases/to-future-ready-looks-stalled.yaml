@@ -1,0 +1,35 @@
+edge_case_id: to-future-ready-looks-stalled
+name: TO_FUTURE_READY Looks Stalled
+status: v1
+severity: medium
+evidence_level: confirmed
+
+summary: >
+  TO_FUTURE_READY es un estado valido con salida potencial, pero para el
+  usuario puede sentirse como pedido trabado o abandonado. Suele aparecer
+  cuando no hay destinos disponibles o el next step no logra cerrar una ruta
+  operativa limpia.
+
+query_patterns:
+  - "por que el pedido quedo frenado pero no cancelado"
+  - "que significa to future ready"
+  - "por que parece trabado si todavia existe"
+
+connected_flows:
+  - flow-create-transaction-and-next-step
+  - flow-chat-state-chips-and-support-actions
+  - flow-cancellation-held-mediation-recovery
+  - flow-operator-interventions-and-panel-actions
+connected_entities:
+  - transaction
+  - state
+  - task
+connected_integrations: []
+connected_domains:
+  - transactions
+  - support-and-operations
+
+source_of_truth:
+  - saldo/app/Transactions/Jobs/TransactionNextStepUseCase.php
+  - saldo/app/Transactions/Transactions/TransactionHelper.php
+  - saldo/app/Transactions/StateChips/StateChatService.php

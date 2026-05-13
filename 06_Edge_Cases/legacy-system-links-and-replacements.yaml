@@ -1,0 +1,30 @@
+edge_case_id: legacy-system-links-and-replacements
+name: Legacy System Links And Replacements
+status: v1
+severity: medium
+evidence_level: confirmed
+
+summary: >
+  Un link historico o slug publico puede terminar mostrando otro sistema
+  visible si el original fue reemplazado con replacement_system_id. Es
+  continuidad intencional, no necesariamente link roto.
+
+query_patterns:
+  - "por que un link viejo abre otro sistema"
+  - "por que una landing muestra un metodo distinto al del slug"
+  - "de donde sale el sistema visible si la URL apunta a otro"
+
+connected_flows:
+  - flow-landing-for-systems-and-marketing-preloads
+  - flow-system-selection-and-quote-calculator
+connected_entities:
+  - system
+connected_integrations: []
+connected_domains:
+  - systems-and-integrations
+
+source_of_truth:
+  - solido/apps/solido-app/src/app/core/helpers/replace-system.helper.ts
+  - solido/apps/solido-app/src/app/landing-for-systems/landing-for-systems.component.ts
+  - saldo/app/Systems/Systems/SystemSchema.php
+

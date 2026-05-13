@@ -1,0 +1,47 @@
+domain_id: support-and-operations
+name: Support And Operations
+status: mapped
+priority: high
+
+summary: >
+  Dominio humano-operativo que toma tareas, responde en contexto, usa panel y
+  ejecuta intervenciones manuales para destrabar, corregir o acompañar pedidos.
+
+owns:
+  - operator tasks
+  - task ownership and reassignment
+  - panel interventions
+  - state chat behavior
+  - helper-driven support interactions
+  - recovery and dispute handling
+
+backend_surface:
+  - saldo/app/Transactions/Tasks
+  - saldo/app/Transactions/StateChips
+  - saldo/app/Transactions/Helpers
+  - saldo/app/Transactions/Actions
+  - saldo/routes/panel.php
+  - saldo/app/Support
+
+frontend_surface:
+  - transaction chat and helper surfaces
+  - dashboard transaction support surfaces
+  - internal panel effects exposed in user-facing states
+
+core_entities:
+  - Task
+  - StateChip
+  - TransactionHelper
+  - operator action
+
+connected_domains:
+  - transactions
+  - validations
+  - systems-and-integrations
+
+connected_flows:
+  - chat-state-chips-and-support-actions
+  - cancellation-held-mediation-recovery
+  - operator-interventions-and-panel-actions
+  - notifications-mails-and-background-jobs
+  - concurrent-orders-and-omitted-transactions

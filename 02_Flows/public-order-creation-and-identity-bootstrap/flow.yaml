@@ -1,0 +1,127 @@
+flow_id: public-order-creation-and-identity-bootstrap
+name: Public Order Creation And Identity Bootstrap
+status: mapped
+priority: high
+scope: core
+
+summary: >
+  Flujo que explica como Saldoar crea o reutiliza identidad operativa desde un pedido
+  publico y como luego permite continuar por key de transaccion o key de usuario sin
+  depender de login tradicional.
+
+entry_points:
+  - public transaction creation
+  - transaction link with transaction_mid and transaction_key
+  - user link with user_id and user_key
+
+contexts:
+  - authenticated_dashboard
+  - public_transaction_key
+  - user_key_context
+
+frontend_surfaces:
+  - public transaction forms
+  - transaction visibility and instructions routes
+  - account by user key routes
+
+backend_routes:
+  - path: v3/t/*
+    purpose: public transaction-scoped access by key
+  - path: v3/u/*
+    purpose: user-scoped access by key
+  - path: v3/users/*
+    purpose: authenticated dashboard access
+
+backend_components:
+  middlewares:
+    - TransactionCheckKeyAndStateV3Middleware
+    - CheckUserKeyV3Middleware
+  controllers:
+    - JsonApiTransactionController
+    - JsonApiUserController
+  policies:
+    - TransactionPublicPolicy
+    - TransactionWithTokenPolicy
+    - AccountDetailPolicy
+  schemas:
+    - AccountSchema
+
+core_entities:
+  - UserX
+  - Transaction
+  - Account
+  - AccountDetail
+  - Validation
+  - File
+
+main_rules:
+  - Public creation can create or reuse user identity by normalized email.
+  - Public creation can create or reuse required accounts for each direction.
+  - Network can be inferred from account address in public policy.
+  - Transaction key context is limited to the linked transaction and its accounts.
+  - User key context is broader and works over user-linked resources.
+  - Authenticated creation applies ownership and system-match checks on existing user accounts.
+
+resources_available_in_public_transaction_context:
+  - transaction
+  - states
+  - direct_transfers1
+  - direct_transfers2
+  - validations
+  - files
+  - transaction_helpers
+  - transaction_instructions_redirect_urls
+
+resources_available_in_user_key_context:
+  - accounts
+  - account_details
+  - validations
+  - biometric_id_validations
+  - files
+  - transaction_link_instructions
+  - transaction_instructions_redirect_urls
+
+ux_implications:
+  - The product can onboard through a transaction rather than through a classic account.
+  - Access continuity can happen without dashboard login.
+  - Existing identity may be silently reused by email.
+  - Support questions about access and prefilled data often depend on this logic.
+
+risks:
+  - Users may not perceive that previous identity was reused.
+  - Public creation can materialize accounts and user records very early in the journey.
+  - Over-simplifying this as a normal login flow can produce wrong product decisions.
+
+connected_flows:
+  - create-transaction-and-next-step
+  - payment-instructions
+  - identity-validations
+  - transaction-visibility-and-status
+  - accounts-and-destination-selection
+
+query_patterns:
+  - "¿por qué aparecen mis datos si nunca me registré?"
+  - "¿cómo funciona el acceso sin login?"
+  - "¿qué es el link de transacción público?"
+  - "¿puedo hacer un pedido sin tener cuenta?"
+  - "¿qué diferencia hay entre acceder por link de transacción y por link de usuario?"
+  - "¿por qué el sistema ya conoce mi email?"
+  - "¿cómo se crea un usuario en Saldoar?"
+  - "el usuario dice que nunca se registró pero aparece en el sistema"
+  - "¿qué recursos puedo ver desde el contexto público?"
+
+open_questions:
+  - Full frontend coverage of all key-based entry points is not closed yet.
+  - Key issuance and rotation lifecycle was not fully mapped.
+  - Legacy or historical variants outside v3 may still exist.
+
+references:
+  - saldo/routes/api.php
+  - saldo/app/Http/Controllers/JsonApiTransactionController.php
+  - saldo/app/Http/Controllers/JsonApiUserController.php
+  - saldo/app/Transactions/Http/TransactionCheckKeyAndStateV3Middleware.php
+  - saldo/app/Users/Http/CheckUserKeyV3Middleware.php
+  - saldo/app/Transactions/Transactions/TransactionPublicPolicy.php
+  - saldo/app/Transactions/Transactions/TransactionWithTokenPolicy.php
+  - saldo/app/Accounts/Accounts/AccountSchema.php
+  - saldo/app/Accounts/AccountDetails/AccountDetailPolicy.php

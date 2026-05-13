@@ -1,0 +1,76 @@
+flow_id: flow-deals-and-direct-transfer-matching
+name: Deals and direct transfer matching
+status: v1
+owner_area: transactions
+evidence_level: confirmed
+abstract: |
+  Explica el flujo de deals públicos y deals_bag. Cubre cómo los deals son artefactos
+  de descubrimiento que no crean transacciones directamente, el ciclo de vida de un
+  deals_bag con expiración de 15 minutos, las reglas de bloqueo por historial de pago
+  y bags expirados, y cómo un bag lleno genera una transacción con directTransfers1
+  ya asignados en WAITING_PAYMENT. Relevante para marketing (qué es un deal) y soporte
+  (por qué el usuario no puede operar).
+query_patterns:
+  - "¿qué es un deal?"
+  - "¿cómo funciona la sección de deals?"
+  - "¿por qué no puedo operar con deals?"
+  - "mi deal expiró, ¿qué hago?"
+  - "¿cuánto tiempo tengo para completar un deal?"
+  - "¿por qué me bloquea al intentar hacer un deal?"
+  - "¿qué diferencia hay entre un deal y una transacción normal?"
+  - "el deal que seleccioné ya no está disponible"
+  - "¿qué es un deals bag?"
+entry_points:
+  - public deals widgets and landings
+  - /my/dashboard/deals
+  - /my/dashboard/transactions/v3/{transactionId}/instructions
+frontend_sources:
+  - solido/apps/solido-app/src/app/landing-page/components/public-deals/public-deals.component.ts
+  - solido/apps/solido-app/src/app/dashboard/deals/deals-bags/deals-bags.component.ts
+  - solido/apps/solido-app/src/app/dashboard/deals/deals-bag-filling.service.ts
+  - solido/apps/solido-app/src/app/core/resources/deals-bag.ts
+  - solido/apps/solido-app/src/app/core/resources/deal.ts
+backend_sources:
+  - saldo/app/Transactions/Deals/DealsBag/DealsBagObserver.php
+  - saldo/app/Transactions/Deals/DealsBag/DealsBagCreateTransactionWhenIsFilledObserver.php
+  - saldo/app/Transactions/Deals/DealsBag/DealsBagToTransactionProcessor.php
+  - saldo/app/Transactions/Deals/DealsBag/DealsBagsReleaseCommand.php
+  - saldo/app/Transactions/Deals/DealsBag/DealsBagStatusEnum.php
+  - saldo/app/Transactions/Deals/DealsBag/UpdateDealsBagStatusListener.php
+  - saldo/app/Transactions/Jobs/TransactionNextStepUseCase.php
+entities:
+  - public_deal
+  - deal
+  - deals_bag
+  - hunted_deal
+  - transaction
+  - direct_transfer1
+  - account
+  - system
+business_rules:
+  - public deals are discovery artifacts, not direct transaction creation
+  - authenticated operation starts when the user builds a deals_bag
+  - deals_bag is persisted and expires after 15 minutes
+  - backend blocks parallel in-process bags for the same user unless the previous one has effectively advanced
+  - backend blocks users with more than 3 expired deals bags in the last 3 days
+  - backend blocks users with more than 10 canceled or expired deals bags in the last 24 hours
+  - backend blocks users with previous payments still unmarked based on recent transaction and direct transfer windows
+  - when a bag moves from filling to filled, backend creates a transaction with direct transfers already assigned
+  - the resulting transaction is moved to WAITING_PAYMENT and the user is redirected to instructions
+  - bag status is later synchronized from transaction state changes
+integrations:
+  - risk evaluators
+  - account selection
+  - notification dispatch
+  - direct transfer generation from hunted deals
+edge_cases:
+  - bag can expire even after the user invested time selecting offers
+  - displayed public availability may differ from what survives confirmation time
+  - filled bag can later become expired if the linked transaction is canceled or does not advance
+  - low-level users may not have the same dashboard deals access path
+  - user-facing blockage may actually come from prior payment hygiene rather than the current bag itself
+unknowns:
+  - exact hunted_deal generation pipeline
+  - full source of public_deals and how real-time it is
+  - complete user-level access rules for deals
+  - when instructions_url from deals_bag is preferred over navigation built from transaction_id

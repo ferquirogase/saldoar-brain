@@ -1,0 +1,34 @@
+edge_case_id: chat-visible-but-locked
+name: Chat Visible But Locked
+status: v1
+severity: medium
+evidence_level: confirmed
+
+summary: >
+  El area de chat puede estar visible aunque el usuario no pueda escribir
+  porque backend todavia no abrio el input libre. Mientras tanto, el flujo
+  prioriza state chips y ayuda guiada.
+
+query_patterns:
+  - "por que veo el chat pero no puedo escribir"
+  - "cuando se habilita de verdad el chat"
+  - "por que a un usuario le aparecen chips y a otro input libre"
+
+connected_flows:
+  - flow-chat-state-chips-and-support-actions
+  - flow-transaction-visibility-and-status
+  - flow-operator-interventions-and-panel-actions
+connected_entities:
+  - state
+  - state_chip
+  - task
+connected_integrations: []
+connected_domains:
+  - support-and-operations
+  - transactions
+
+source_of_truth:
+  - saldo/app/Transactions/StateChips/StateChatService.php
+  - saldo/app/Transactions/StateChips/ChatController.php
+  - solido/apps/solido-app/src/app/transactions/components/state-chat/state-chat.component.ts
+

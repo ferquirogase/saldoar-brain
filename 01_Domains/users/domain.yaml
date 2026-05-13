@@ -1,0 +1,53 @@
+domain_id: users
+name: Users
+status: mapped
+priority: high
+
+summary: >
+  Dominio de identidad del cliente en Saldoar. Modela acceso, nivel, riesgo,
+  metadata, perfil y continuidad de usuario a traves de registro, reuse o merge.
+
+owns:
+  - user identity
+  - authentication and access
+  - user key access
+  - user level and level power
+  - flag levels and accumulated risk
+  - user profile metadata
+  - referrals and audiences
+  - user fiscal data
+  - user activity traces
+
+backend_surface:
+  - saldo/app/Users
+  - saldo/app/Transactions/UserExperience
+  - saldo/app/Users/Http/CheckUserKeyV3Middleware.php
+  - saldo/app/Users/UserKeyV3Manager.php
+  - saldo/app/Users/Users/UseCases/UpdateEmail.php
+
+frontend_surface:
+  - solido/apps/solido-app/src/app/dashboard/my-profile
+  - solido/apps/solido-app/src/app/core/resources/user.ts
+  - solido/apps/solido-app/src/app/core/resources/user-info.ts
+  - solido/apps/solido-app/src/app/core/resources/user-historical-level.ts
+
+core_entities:
+  - UserX
+  - UserInfo
+  - UserMetadata
+  - UserFiscalData
+  - UserHistoricalLevel
+
+connected_domains:
+  - transactions
+  - validations
+  - accounts
+  - support-and-operations
+
+connected_flows:
+  - public-order-creation-and-identity-bootstrap
+  - identity-validations
+  - deals-and-direct-transfer-matching
+  - concurrent-orders-and-omitted-transactions
+  - notifications-mails-and-background-jobs
+  - system-specific-branches

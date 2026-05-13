@@ -1,0 +1,36 @@
+edge_case_id: pix-key-late-held
+name: PIX Key Late HELD
+status: v1
+severity: high
+evidence_level: confirmed
+
+summary: >
+  Una operacion con destino PIX puede parecer valida durante buena parte del
+  flujo y terminar en HELD cuando la validacion tardia de la clave falla en
+  Kamipay. No se siente como error de formulario, sino como retencion
+  posterior.
+
+query_patterns:
+  - "por que una clave pix invalida termina en held"
+  - "por que un pedido pix se retuvo despues de parecer valido"
+  - "por que no fallo antes si la clave pix estaba mal"
+
+connected_flows:
+  - flow-accounts-and-destination-selection
+  - flow-cancellation-held-mediation-recovery
+  - system-specific-branches
+connected_entities:
+  - account
+  - state
+  - transaction
+connected_integrations:
+  - kamipay
+connected_domains:
+  - accounts
+  - transactions
+
+source_of_truth:
+  - saldo/app/Transactions/Transactions/UseCases/ValidatePixAddressOrHeldUseCase.php
+  - saldo/app/Transactions/Listeners/ValidatePixAddressListener.php
+  - saldo/app/External/Kamipay/KamipayService.php
+

@@ -1,0 +1,73 @@
+flow_id: flow-cancellation-held-mediation-recovery
+name: Cancellation, held, mediation and recovery
+status: v1
+owner_area: transactions
+evidence_level: confirmed
+abstract: |
+  Explica los estados de bloqueo y recuperación de transacciones. Cubre cuándo un
+  usuario puede cancelar manualmente, los criterios automáticos para pasar a HELD o
+  MEDIATION según si existen transferencias directas, el estado HELD_DISPUTED para
+  disputas de no recepción, y los mecanismos de recuperación mediante jobs en background
+  y acciones de operadores. También explica por qué una transacción puede parecer
+  muerta pero ser internamente recuperable. Relevante para soporte y operaciones.
+query_patterns:
+  - "¿por qué mi pedido está retenido o bloqueado?"
+  - "¿qué es HELD?"
+  - "¿qué es mediación?"
+  - "¿puedo cancelar mi pedido?"
+  - "¿cuándo cancela Saldoar automáticamente?"
+  - "el usuario pagó pero el pedido sigue bloqueado"
+  - "¿cómo se sale del estado HELD?"
+  - "¿qué pasa cuando hay una disputa?"
+  - "mi pedido fue cancelado sin que yo lo cancelara"
+  - "¿qué es HELD_DISPUTED?"
+entry_points:
+  - POST /v3/users/{user_id}/transactions/{transaction_id}/cancel
+  - POST /v3/t/{transaction_id}/cancel
+  - /pedido-cancelado
+  - automatic pending-processing commands
+  - recovery actions and dispute-release jobs
+frontend_sources:
+  - solido/apps/solido-app/src/ui/pages/transaction-details/transaction-details.component.ts
+  - solido/apps/solido-app/src/app/transactions/pages/transaction-canceled-reason/transaction-canceled-reason.component.ts
+  - solido/apps/solido-app/src/app/wiki/help/landing-recovery/landing-recovery.component.ts
+  - solido/apps/solido-app/src/app/wiki/help/landing-recovery/poll-landing-recovery/poll-landing-recovery.component.ts
+backend_sources:
+  - saldo/app/Transactions/Actions/CancelTransactionActionMiddleware.php
+  - saldo/app/Transactions/Transactions/TransactionStateObserver.php
+  - saldo/app/Transactions/Transactions/TransactionHelper.php
+  - saldo/app/Transactions/Commands/TransactionsProcessOldPendingWithoutDirectTransfersCommand.php
+  - saldo/app/Transactions/Commands/TransactionsProcessOldPendingWithDirectTransfersCommand.php
+  - saldo/app/Transactions/Commands/Pipes/TransactionReadyForCancelOrHeld.php
+  - saldo/app/Transactions/Commands/Pipes/HeldDisputedNotReceived.php
+  - saldo/app/Transactions/Commands/Pipes/TransactionWithTimesForMediation.php
+  - saldo/app/Transactions/Commands/Pipes/ToHeldOrMediation.php
+  - saldo/app/Transactions/Actions/RecoverDirectTransfers.php
+  - saldo/app/Transactions/Jobs/TryToReleaseDisputeJob.php
+  - saldo/app/Transactions/Notifications/StateNotificationsRepository.php
+entities:
+  - transaction
+  - state
+  - direct_transfer1
+  - direct_transfer2
+  - screenshot
+  - task
+business_rules:
+  - user cancellation is allowed only for a narrow set of not-yet-advanced transactions
+  - backend treats pending transactions differently depending on whether direct transfers already exist
+  - recent instructions reading or recent direct transfer activity delays automatic cancellation or hold
+  - pending transactions without direct transfers use time and rate-variation windows to decide cancellation versus hold
+  - pending transactions with direct transfers can release unsent destinations, cancel, hold, credit or move to mediation
+  - disputes with non-received transfers can move transactions to HELD_DISPUTED
+  - some canceled or held transactions can recover deleted destinations and return to a held review state
+  - disputes can be released back to WAITING_PAYMENT or CREDITED_PAYMENT if reception issues disappear
+edge_cases:
+  - review states do not appear to have the same notification coverage as basic lifecycle states
+  - deals-bag transactions are explicitly excluded from some destination-recovery logic
+  - a user-visible dead end may still be internally recoverable
+  - recovery depends heavily on background jobs and operator actions
+unknowns:
+  - full catalog of manual actions that force HELD or MEDIATION
+  - exact timing constants beyond the pipes inspected here
+  - all user-facing presentations of HELD_DISPUTED
+  - whether alternative notifications exist outside the main state notification repository

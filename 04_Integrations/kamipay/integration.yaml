@@ -1,0 +1,47 @@
+integration_id: kamipay
+name: Kamipay
+status: mapped
+priority: high
+
+summary: >
+  Integracion de liquidez y pagos usada por Saldoar sobre todo para PIX.
+  Crea PIX dinamico, ejecuta payouts a claves PIX, valida claves antes de
+  operar, expone rates BRL/USDT y sincroniza estados por webhook.
+
+backend_surface:
+  - saldo/app/External/Kamipay/KamipayService.php
+  - saldo/app/External/Kamipay/Webhooks/KamipayWebhookController.php
+  - saldo/app/External/Kamipay/Resources/OracleResource.php
+  - saldo/app/Liquidity/Adapters/Providers/Kamipay/KamipayLiquidityProvider.php
+  - saldo/app/Liquidity/Adapters/Providers/Kamipay/KamipayLiquidityProviderRates.php
+  - saldo/app/Liquidity/Adapters/Providers/Kamipay/KamipayTxToPayTx.php
+  - saldo/app/Liquidity/Adapters/Providers/Kamipay/KamipayExternalListener.php
+  - saldo/app/Transactions/Transactions/UseCases/ValidatePixAddressOrHeldUseCase.php
+
+frontend_surface:
+  - solido/apps/solido-app/src/ui/pages/instructions/components/qr-pix-button/qr-pix-button.component.ts
+  - solido/apps/solido-app/src/ui/shared/helpers/qr-pix-helper.ts
+  - solido/apps/solido-app/src/ui/pages/instructions/components/direct-transfer1/direct-transfer1-active/direct-transfer1-active.component.html
+
+query_patterns:
+  - "como funciona pix en saldoar"
+  - "por que mi pix quedo retenido"
+  - "de donde sale el qr o emv de pix"
+  - "por que me valida la clave pix antes de pagar"
+  - "que pasa si kamipay no tiene balance"
+  - "de donde viene el webhook de kamipay"
+  - "por que aparece un pix dinamico"
+
+connected_flows:
+  - system-specific-branches
+  - accounts-and-destination-selection
+  - cancellation-held-mediation-recovery
+  - notifications-mails-and-background-jobs
+
+failure_modes:
+  - pix_key_validation_failed
+  - webhook_auth_failed
+  - provider_request_error
+  - insufficient_provider_balance
+  - tx_status_not_found
+  - rate_lookup_failed

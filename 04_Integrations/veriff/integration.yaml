@@ -1,0 +1,42 @@
+integration_id: veriff
+name: Veriff
+status: mapped
+priority: high
+
+summary: >
+  Integracion biometrica externa usada por Saldoar para biometric_id.
+  Crea sesiones, devuelve verification_url, recibe decisiones por webhook y
+  alimenta validaciones internas con evidencia o resultado externo.
+
+backend_surface:
+  - saldo/app/Validations/Validations/BiometricIdValidation/BiometricIdValidationService.php
+  - saldo/app/External/Veriff/VeriffCreateVerificationSessionService.php
+  - saldo/app/External/Veriff/Webhooks/VeriffDecisionWebhookController.php
+  - saldo/app/External/Veriff/VeriffWebhookValidationService.php
+  - saldo/app/Validations/Validations/ExternalDecisionListener.php
+  - saldo/app/Validations/Validations/BiometricIdValidation/Listeners
+  - saldo/app/Validations/Validations/BiometricIdValidation/Commands/SynchronizeUserFilesCommand.php
+
+frontend_surface:
+  - solido/apps/solido-app/src/ui/features/validations/components/validation-biometric/validation-biometric.component.ts
+  - solido/apps/solido-app/src/ui/features/validations/components/validation-biometric/validation-biometric-view-model.service.ts
+  - solido/apps/solido-app/src/domain/use-cases/get-biometric-id-use-case.ts
+  - solido/apps/solido-app/src/domain/services/biometric-id-validation.service.ts
+
+query_patterns:
+  - "por que se abre una pantalla externa para validar identidad"
+  - "como funciona veriff en saldoar"
+  - "de donde sale la verification_url"
+  - "como entra la decision biometrica"
+  - "por que complete biometria y no se aprobo"
+
+connected_flows:
+  - identity-validations
+  - public-order-creation-and-identity-bootstrap
+
+failure_modes:
+  - session_creation_failure
+  - webhook_validation_failure
+  - external_decision_not_applied
+  - media_sync_failure
+  - poor_return_to_transaction_flow

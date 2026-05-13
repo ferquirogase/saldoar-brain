@@ -1,0 +1,35 @@
+flow_id: flow-example
+name: Example flow
+status: draft
+owner_area: unknown
+evidence_level: confirmed
+abstract: |
+  Descripción de 50-100 palabras en lenguaje natural. Explicar qué cubre el flow,
+  qué actores involucra (usuario, operador, backend), y para qué equipos es relevante
+  (soporte, marketing, UX, producto). Escribir pensando en que un agente lo va a usar
+  para decidir si este documento responde la pregunta recibida.
+query_patterns:
+  - "pregunta frecuente en lenguaje natural 1"
+  - "pregunta frecuente en lenguaje natural 2"
+  - "pregunta frecuente en lenguaje natural 3"
+  - "pregunta frecuente en lenguaje natural 4"
+  - "pregunta frecuente en lenguaje natural 5"
+  - "sinónimo o variación de pregunta anterior"
+entry_points: []
+front_routes: []
+backend_routes: []
+frontend_sources: []
+backend_sources: []
+source_of_truth: []
+entities: []
+integrations: []
+business_rules: []
+edge_cases: []
+unknowns: []
+review:
+  owner: unknown
+  confidence: medium
+  last_reviewed_at: YYYY-MM-DD
+  reviewed_against:
+    saldo: COMMIT_SHA
+    solido: COMMIT_SHA

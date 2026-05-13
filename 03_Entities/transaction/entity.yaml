@@ -1,0 +1,68 @@
+entity_id: transaction
+name: Transaction
+status: mapped
+priority: critical
+
+summary: >
+  Entidad central del producto. Representa el pedido de intercambio y conecta
+  usuario, sistemas, cuentas, estados, validaciones, transferencias y ayudas operativas.
+
+backend_model:
+  - saldo/app/Transactions/Transactions/Transaction.php
+
+frontend_model:
+  - solido/apps/solido-app/src/app/transactions/transaction.ts
+
+key_attributes:
+  - mid
+  - user_id
+  - system1_id
+  - system2_id
+  - amount1
+  - amount2
+  - account1_id
+  - account2_id
+  - agreement1_id
+  - agreement2_id
+  - state
+  - ready_to_pay
+  - marked_as_sent
+  - instructions_read_at
+  - sent
+  - sent_at
+  - rest_to_pay
+
+key_relationships:
+  - user
+  - system1
+  - system2
+  - account1
+  - account2
+  - agreement1
+  - agreement2
+  - states
+  - directTransfers1
+  - directTransfers2
+  - validations
+  - metas
+  - invoice
+  - dealsBag
+  - referralTransaction
+  - vccs
+
+connected_domains:
+  - transactions
+  - users
+  - accounts
+  - validations
+  - agreements
+  - systems-and-integrations
+  - support-and-operations
+
+connected_flows:
+  - create-transaction-and-next-step
+  - payment-instructions
+  - transaction-visibility-and-status
+  - concurrent-orders-and-omitted-transactions
+  - chat-state-chips-and-support-actions
+  - cancellation-held-mediation-recovery

@@ -1,0 +1,56 @@
+domain_id: transactions
+name: Transactions
+status: mapped
+priority: critical
+
+summary: >
+  Dominio central de Saldoar. Orquesta el lifecycle del pedido, sus estados,
+  instrucciones, transferencias, visibilidad, notificaciones e intervenciones.
+
+owns:
+  - transaction creation
+  - next-step decisions
+  - state lifecycle
+  - payment instructions
+  - direct transfers
+  - deals conversion into transactions
+  - transaction visibility
+  - transaction chat and helpers
+  - transaction notifications
+  - operator actions on transactions
+
+backend_surface:
+  - saldo/app/Transactions
+  - saldo/routes/api.php
+
+frontend_surface:
+  - solido/apps/solido-app/src/app/transactions
+  - solido/apps/solido-app/src/app/dashboard/transactions
+
+core_entities:
+  - Transaction
+  - State
+  - DirectTransfer
+  - DealsBag
+  - Deal
+  - Task
+  - TransactionHelper
+  - StateChip
+
+connected_domains:
+  - validations
+  - support-and-operations
+  - systems-and-integrations
+
+connected_flows:
+  - create-transaction-and-next-step
+  - payment-instructions
+  - transaction-visibility-and-status
+  - concurrent-orders-and-omitted-transactions
+  - deals-and-direct-transfer-matching
+  - chat-state-chips-and-support-actions
+  - cancellation-held-mediation-recovery
+  - operator-interventions-and-panel-actions
+  - notifications-mails-and-background-jobs
+  - public-order-creation-and-identity-bootstrap
+  - system-specific-branches

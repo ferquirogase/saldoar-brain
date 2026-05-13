@@ -1,0 +1,52 @@
+entity_id: direct_transfer
+name: DirectTransfer
+status: mapped
+priority: critical
+
+summary: >
+  Entidad de pago o cobro parcial que conecta dos transacciones y permite
+  modelar envíos distribuidos, confirmaciones, problemas y recovery operativo.
+
+backend_model:
+  - saldo/app/Transactions/DirectTransfers/DirectTransfer.php
+  - saldo/app/Transactions/DirectTransfers/DirectTransferRepresentation.php
+
+frontend_model:
+  - solido/apps/solido-app/src/app/core/resources/direct-transfer.ts
+
+key_attributes:
+  - transaction1_id
+  - transaction2_id
+  - amount
+  - sent
+  - sent_at
+  - received
+  - received_at
+  - behaviour
+  - problems_qty
+  - payment_identification
+
+key_relationships:
+  - transaction1
+  - transaction2
+  - account
+  - files
+
+derived_operational_states:
+  - living
+  - working
+  - done
+  - failed
+
+connected_domains:
+  - transactions
+  - support-and-operations
+  - accounts
+  - systems-and-integrations
+
+connected_flows:
+  - payment-instructions
+  - deals-and-direct-transfer-matching
+  - chat-state-chips-and-support-actions
+  - cancellation-held-mediation-recovery
+  - operator-interventions-and-panel-actions

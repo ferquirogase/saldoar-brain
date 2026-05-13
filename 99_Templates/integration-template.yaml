@@ -1,0 +1,23 @@
+integration_id: integration-example
+name: Example integration
+status: draft
+priority: medium
+
+summary: >
+  Explicacion corta de la integracion, para que existe y por que importa para
+  producto, soporte o UX.
+
+backend_surface: []
+frontend_surface: []
+source_of_truth: []
+query_patterns: []
+connected_flows: []
+failure_modes: []
+
+review:
+  owner: unknown
+  confidence: medium
+  last_reviewed_at: YYYY-MM-DD
+  reviewed_against:
+    saldo: COMMIT_SHA
+    solido: COMMIT_SHA

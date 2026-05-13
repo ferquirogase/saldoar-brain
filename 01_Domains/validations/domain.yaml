@@ -1,0 +1,43 @@
+domain_id: validations
+name: Validations
+status: mapped
+priority: high
+
+summary: >
+  Dominio de confianza y evidencia. Gestiona validaciones de usuario y de
+  transaccion, documentos, biometria, screenshots y condiciones de aprobacion.
+
+owns:
+  - user validations
+  - transaction validations
+  - validation types and examples
+  - user validation links
+  - biometric validation
+  - screenshot validations
+  - validation files and evidence
+
+backend_surface:
+  - saldo/app/Validations
+  - saldo/app/Transactions/Screenshots
+
+frontend_surface:
+  - solido/apps/solido-app/src/app/transactions/pages/user-info
+  - solido/apps/solido-app/src/app/dashboard/user-validations-dashboard
+
+core_entities:
+  - Validation
+  - ValidationType
+  - UserValidationLink
+  - File
+
+connected_domains:
+  - transactions
+  - support-and-operations
+  - systems-and-integrations
+
+connected_flows:
+  - identity-validations
+  - payment-instructions
+  - accounts-and-destination-selection
+  - public-order-creation-and-identity-bootstrap
+  - notifications-mails-and-background-jobs

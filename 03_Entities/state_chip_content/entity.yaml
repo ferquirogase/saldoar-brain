@@ -1,0 +1,49 @@
+entity_id: state_chip_content
+name: StateChipContent
+status: mapped
+priority: medium
+
+summary: >
+  Capa de contenido localizada de un StateChip. Guarda el texto visible del
+  chip y la respuesta automatica opcional por idioma, separando copy de
+  estructura y logica.
+
+backend_model:
+  - saldo/app/Transactions/StateChips/StateChipContents/StateChipContent.php
+  - saldo/app/Transactions/StateChips/StateChipContents/StateChipContentObserver.php
+  - saldo/app/Transactions/StateChips/StateChipRepository.php
+  - saldo/app/Transactions/StateChips/TransactionStateChipsService.php
+  - saldo/app/Transactions/StateChips/Jobs/HandleReceivedAnswerableStateChip.php
+  - saldo/app/Transactions/StateChips/StateChipDatabaseRepository.php
+
+key_attributes:
+  - state_chip_id
+  - lang
+  - ask
+  - answer
+  - created_at
+  - updated_at
+
+key_relationships:
+  - stateChip
+
+behavior:
+  locale_scoped: true
+  unique_per_chip_and_lang: true
+  invalidates_state_chip_cache_on_create: true
+  invalidates_state_chip_cache_on_update: true
+  ask_is_rendered_in_chip: true
+  answer_can_be_published_as_state: true
+
+connected_entities:
+  - state_chip
+  - state
+  - transaction
+  - user
+
+connected_domains:
+  - support-and-operations
+  - transactions
+
+connected_flows:
+  - chat-state-chips-and-support-actions

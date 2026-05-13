@@ -1,0 +1,84 @@
+entity_id: state_chip
+name: StateChip
+status: mapped
+priority: high
+
+summary: >
+  Entidad de opcion guiada dentro del flujo conversacional de una transaccion.
+  Puede mostrar un texto breve al usuario, abrir subrutas dentro de un arbol,
+  responder automaticamente, abrir soporte o ejecutar acciones sobre la
+  transaccion.
+
+backend_model:
+  - saldo/app/Transactions/StateChips/StateChips/StateChip.php
+  - saldo/app/Transactions/StateChips/StateChipContents/StateChipContent.php
+  - saldo/app/Transactions/StateChips/StateChipsPivot/StateChipsPivot.php
+  - saldo/app/Transactions/StateChips/TransactionStateChipsService.php
+  - saldo/app/Transactions/StateChips/StateChipRepository.php
+  - saldo/app/Transactions/StateChips/StateChipController.php
+  - saldo/app/Transactions/StateChips/Jobs/HandleReceivedStateChipJob.php
+  - saldo/app/Transactions/StateChips/Jobs/HandleReceivedAnswerableStateChip.php
+  - saldo/app/Transactions/StateChips/Jobs/IncrementStateChipUsageJob.php
+
+frontend_surface:
+  - solido/apps/solido-app/src/app/core/resources/state-chip.ts
+  - solido/apps/solido-app/src/app/core/services/state-chips.service.ts
+  - solido/apps/solido-app/src/ui/shared/components/sol-state-chip/sol-state-chip.component.ts
+
+key_attributes:
+  - id
+  - enabled
+  - group1_id
+  - group2_id
+  - transaction_action
+  - ask
+  - answer
+
+key_relationships:
+  - stateChipContents
+  - parents
+  - children
+  - parentPivot
+  - state_chip_statistics
+
+special_ids:
+  - id: 1
+    code: GO_BACK
+    behavior: rollback_selected_path
+  - id: 2
+    code: SUPPORT
+    behavior: open_state_chat_and_add_public_confirmation
+
+selection_runtime:
+  storage: cache_per_transaction
+  filters:
+    - transaction.state
+    - parent_id
+    - transaction.system1.group_id
+    - transaction.system2.group_id
+  fallbacks:
+    - go_back
+    - support
+
+possible_effects:
+  - open_child_options
+  - add_automated_answer
+  - execute_transaction_action
+  - open_state_chat
+  - increment_usage_statistics
+
+connected_entities:
+  - transaction
+  - state
+  - task
+  - system
+
+connected_domains:
+  - support-and-operations
+  - transactions
+  - systems-and-integrations
+
+connected_flows:
+  - chat-state-chips-and-support-actions
+  - operator-interventions-and-panel-actions
+  - cancellation-held-mediation-recovery

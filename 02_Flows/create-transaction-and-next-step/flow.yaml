@@ -1,0 +1,69 @@
+flow_id: flow-create-transaction-and-next-step
+name: Create transaction and next step
+status: v1
+owner_area: transactions
+evidence_level: confirmed
+abstract: |
+  Explica el pipeline post-creación de una transacción. Cubre los caminos posibles
+  luego de crear un pedido: acuerdo disponible, transferencias directas asignables,
+  o ninguno (TO_FUTURE_READY con apertura de chat). Incluye el camino alternativo de
+  deals_bag y cómo una validación aprobada puede relanzar el pipeline. Fundamental
+  para entender por qué el estado inicial varía y el pedido puede aparecer "parado"
+  sin explicación visible al usuario.
+query_patterns:
+  - "creé un pedido y no pasó nada"
+  - "¿cuánto tarda en aparecer la instrucción de pago?"
+  - "¿qué es TO_FUTURE_READY?"
+  - "¿qué es TO_FUTURE?"
+  - "¿por qué el pedido quedó en espera después de crearlo?"
+  - "¿qué pasa justo después de crear un pedido?"
+  - "el pedido se creó pero no aparecen los datos para pagar"
+  - "¿cuándo pasa el pedido a WAITING_PAYMENT?"
+entry_points:
+  - dashboard balance actions: deposit, withdraw, transfer, convert
+  - deals bag filled event
+  - validation approval that re-enables a blocked transaction
+frontend_sources:
+  - solido/apps/solido-app/src/domain/use-cases/create-transaction.use-case.ts
+  - solido/apps/solido-app/src/ui/features/balance/application/strategies/deposit-strategy.ts
+  - solido/apps/solido-app/src/ui/features/balance/application/strategies/withdraw-strategy.ts
+backend_sources:
+  - saldo/app/Transactions/Jobs/TransactionNextStepUseCase.php
+  - saldo/app/Transactions/Deals/DealsBag/DealsBagCreateTransactionWhenIsFilledObserver.php
+  - saldo/app/Transactions/Transactions/UseCases/ApproveValidationAndSendInstructionsUseCase.php
+  - saldo/app/Transactions/Notifications/StateNotifications/TransactionWaitingPaymentNotification.php
+entities:
+  - transaction
+  - transaction_private
+  - agreement
+  - direct_transfer1
+  - deals_bag
+  - validation
+business_rules:
+  - create flow from front persists TransactionPrivate and then redirects to instructions
+  - backend still decides the operational next step after creation
+  - next-step pipeline can block or divert the transaction because of validation, risk or rates
+  - if received is already true, transaction goes to CREDITED_PAYMENT
+  - if agreement is available, transaction can move to WAITING_PAYMENT through agreement path
+  - if direct transfers can be assigned, transaction can move to WAITING_PAYMENT through destination path
+  - if neither path works, transaction moves to TO_FUTURE_READY and may open chat if actionable alternatives exist
+  - deals bag path can create transaction and direct transfers directly into WAITING_PAYMENT
+  - approved validation can re-run next-step logic and unlock the transaction
+states:
+  - TO_FUTURE
+  - TO_FUTURE_READY
+  - WAITING_PAYMENT
+  - CREDITED_PAYMENT
+integrations:
+  - agreements processors
+  - direct transfer matching processor
+  - state notifications
+  - state chat opening
+edge_cases:
+  - same user action in front can land in very different states depending on backend pipes
+  - deals bag creation path is not equivalent to manual dashboard creation
+  - TO_FUTURE_READY may look like a stalled flow unless copy explains it
+unknowns:
+  - most common production pipes that trigger non-happy paths
+  - exact JSON:API backend create path for TransactionPrivate
+  - detailed role of metas during transaction creation

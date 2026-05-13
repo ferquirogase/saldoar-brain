@@ -1,0 +1,33 @@
+edge_case_id: stale-public-quote-session
+name: Stale Public Quote Session
+status: v1
+severity: medium
+evidence_level: confirmed
+
+summary: >
+  Una ruta publica incompleta puede rehidratar una cotizacion anterior desde
+  QuoteSessionService. Mejora continuidad, pero puede volver opaco el origen
+  real de la cotizacion y hacer que una home o landing parezca precargada sin
+  que la URL actual lo explique.
+
+query_patterns:
+  - "por que me aparece una cotizacion vieja si el link esta vacio"
+  - "por que la home recuerda una cotizacion anterior"
+  - "de donde sale esta cotizacion si la URL no tiene sistemas"
+
+connected_flows:
+  - flow-system-selection-and-quote-calculator
+  - flow-landing-for-systems-and-marketing-preloads
+connected_entities:
+  - transaction
+  - system
+connected_integrations: []
+connected_domains:
+  - transactions
+  - systems-and-integrations
+
+source_of_truth:
+  - solido/apps/solido-app/src/app/core/services/quote-session.service.ts
+  - solido/apps/solido-app/src/app/home/home.component.ts
+  - solido/apps/solido-app/src/app/home/home-step-b.component.ts
+

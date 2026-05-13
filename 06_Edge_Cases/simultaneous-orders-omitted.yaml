@@ -1,0 +1,33 @@
+edge_case_id: simultaneous-orders-omitted
+name: Simultaneous Orders Omitted
+status: v1
+severity: high
+evidence_level: confirmed
+
+summary: >
+  Cuando un usuario crea varios pedidos en una ventana corta, backend puede
+  priorizar uno y relegar otros a TO_NEW_TICKET, sobre todo si cambia el peso
+  relativo de instructions_read_at. Parece bug, pero responde a control de
+  concurrencia y proteccion operativa.
+
+query_patterns:
+  - "por que un pedido desaparecio cuando hice dos al mismo tiempo"
+  - "por que me mando a otro ticket si cree varios pedidos"
+  - "por que uno de mis pedidos quedo omitido"
+
+connected_flows:
+  - flow-concurrent-orders-and-omitted-transactions
+  - flow-payment-instructions
+  - flow-chat-state-chips-and-support-actions
+connected_entities:
+  - transaction
+  - state
+connected_integrations: []
+connected_domains:
+  - transactions
+
+source_of_truth:
+  - saldo/app/Transactions/Jobs/EvaluatorPipes/OnlyOneTransactionWaitingPayment.php
+  - saldo/app/Transactions/Jobs/CancelMultipleWaitingPaymentTransactions.php
+  - saldo/app/Transactions/TransactionHelpers/HelperRepositories/OmittedOrdersHelperRepository.php
+

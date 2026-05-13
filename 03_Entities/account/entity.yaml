@@ -1,0 +1,54 @@
+entity_id: account
+name: Account
+status: mapped
+priority: high
+
+summary: >
+  Entidad base de cuenta operativa. Representa el identificador reusable con el
+  que un usuario envía o recibe saldo, con relación a sistema, red y detalles complementarios.
+
+backend_model:
+  - saldo/app/Accounts/Accounts/Account.php
+  - saldo/app/Accounts/AccountDetails/AccountDetail.php
+  - saldo/app/Accounts/Accounts/AccountSchema.php
+
+frontend_model:
+  - solido/apps/solido-app/src/app/core/resources/account.ts
+
+key_attributes:
+  - user_id
+  - system_id
+  - network_id
+  - address
+  - alias
+  - status
+  - balance
+
+related_account_detail_fields:
+  - holder_name
+  - identification_number
+  - bank_id
+  - bank_account_type_id
+  - account_number
+  - bank_name
+
+key_relationships:
+  - user
+  - system
+  - network
+  - accountDetail
+  - agreements
+  - accountEntries
+  - metas
+
+connected_domains:
+  - accounts
+  - transactions
+  - agreements
+  - systems-and-integrations
+
+connected_flows:
+  - accounts-and-destination-selection
+  - public-order-creation-and-identity-bootstrap
+  - payment-instructions
+  - system-specific-branches

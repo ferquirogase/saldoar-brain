@@ -1,0 +1,53 @@
+integration_id: sockets-websocket
+name: Sockets and Websocket
+status: mapped
+priority: high
+
+summary: >
+  Capa de actualizacion en vivo basada en Laravel Echo y Pusher. Distribuye
+  eventos publicos y privados hacia `solido`, sobre todo para transacciones,
+  validaciones, systems y best rates. No reemplaza las APIs JSON:API: empuja
+  eventos que el front usa para refrescar o mutar recursos ya abiertos.
+
+backend_surface:
+  - saldo/routes/channels.php
+  - saldo/app/Core/Broadcasting/Internal/BroadcastableEvent.php
+  - saldo/app/Core/Events/Solido/TransactionPrivateEvent.php
+  - saldo/app/Core/Events/Solido/SystemsUpdatedEvent.php
+  - saldo/app/Core/Events/Solido/BestRatesUpdatedEvent.php
+  - saldo/routes/api-guest.php
+
+frontend_surface:
+  - solido/apps/solido-app/src/app/socket/web-socket.ts
+  - solido/apps/solido-app/src/app/socket/services/jsonapi-websocket.service.ts
+  - solido/apps/solido-app/src/app/socket/services/transaction-socket.service.ts
+  - solido/apps/solido-app/src/app/socket/services/user-socket.service.ts
+  - solido/apps/solido-app/src/app/socket/services/public-socket.service.ts
+  - solido/apps/solido-app/src/ui/pages/transaction-details/transaction-details.component.ts
+  - solido/apps/solido-app/src/ui/pages/instructions/instructions.component.ts
+  - solido/apps/solido-app/src/app/dashboard/dashboard.component.ts
+  - solido/apps/solido-app/src/ui/features/validations/services/create-validation.service.ts
+
+query_patterns:
+  - "por que una transaccion cambia sola sin refrescar"
+  - "como se actualiza en vivo el estado del pedido"
+  - "de donde salen los cambios en tiempo real del dashboard"
+  - "que canal usa saldoar para una transaccion publica"
+  - "por que systems o best rates cambian sin recargar"
+  - "como entra una validacion aprobada al front"
+  - "que pasa si se corta el websocket"
+
+connected_flows:
+  - transaction-visibility-and-status
+  - payment-instructions
+  - identity-validations
+  - chat-state-chips-and-support-actions
+  - system-selection-and-quote-calculator
+
+failure_modes:
+  - auth_channel_failed
+  - websocket_disconnected
+  - stale_ui_after_disconnect
+  - event_without_matching_resource
+  - wrong_context_channel_subscription
+  - partial_live_update_without_followup_fetch

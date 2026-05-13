@@ -1,0 +1,28 @@
+edge_case_id: edge-case-example
+name: Example edge case
+status: draft
+severity: medium
+evidence_level: confirmed
+
+summary: >
+  Explicacion corta del comportamiento raro, por que importa y en que parte del
+  producto aparece.
+
+query_patterns:
+  - "pregunta frecuente en lenguaje natural 1"
+  - "pregunta frecuente en lenguaje natural 2"
+
+connected_flows: []
+connected_entities: []
+connected_integrations: []
+connected_domains: []
+
+source_of_truth: []
+
+review:
+  owner: unknown
+  confidence: medium
+  last_reviewed_at: YYYY-MM-DD
+  reviewed_against:
+    saldo: COMMIT_SHA
+    solido: COMMIT_SHA

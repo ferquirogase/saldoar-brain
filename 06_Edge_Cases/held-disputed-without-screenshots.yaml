@@ -1,0 +1,30 @@
+edge_case_id: held-disputed-without-screenshots
+name: Held Disputed Without Screenshots
+status: v1
+severity: high
+evidence_level: confirmed
+
+summary: >
+  Un pedido puede entrar en HELD_DISPUTED aunque no existan screenshots si el
+  pipeline de disputa detecta conflicto de recepcion sobre directTransfers1.
+  No es simplemente un hold por archivo faltante.
+
+query_patterns:
+  - "por que entro en held disputed si no subi screenshots"
+  - "que diferencia hay entre held y held disputed"
+  - "la disputa depende de tener archivos"
+
+connected_flows:
+  - flow-cancellation-held-mediation-recovery
+  - flow-notifications-mails-and-background-jobs
+connected_entities:
+  - state
+  - transaction
+connected_integrations: []
+connected_domains:
+  - transactions
+
+source_of_truth:
+  - saldo/app/Transactions/Commands/Pipes/HeldDisputedNotReceived.php
+  - saldo/app/Transactions/Jobs/TryToReleaseDisputeJob.php
+

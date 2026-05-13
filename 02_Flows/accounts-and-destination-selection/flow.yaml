@@ -1,0 +1,63 @@
+flow_id: flow-accounts-and-destination-selection
+name: Accounts and destination selection
+status: v1
+owner_area: transactions
+evidence_level: confirmed
+abstract: |
+  Explica cómo el usuario selecciona o registra una cuenta de destino al crear una
+  transacción. Cubre la validación por ownership y compatibilidad de sistema, la
+  creación de cuentas en el flujo público, los requisitos de account_detail para
+  ciertos sistemas, y la diferencia entre la cuenta elegida por el usuario y el
+  destino operativo asignado por el backend. Incluye el impacto de cambiar de
+  destino en una transacción activa, que puede generar un pedido nuevo.
+query_patterns:
+  - "¿cómo agrego una cuenta de destino?"
+  - "¿por qué me rechazaron la cuenta bancaria?"
+  - "¿puedo cambiar la cuenta de destino después de crear el pedido?"
+  - "¿qué es account detail?"
+  - "¿por qué me pide datos adicionales de la cuenta?"
+  - "¿por qué al cambiar el destino se creó un pedido nuevo?"
+  - "la cuenta que ingresé no es válida"
+  - "¿qué es la red de pago y cómo afecta el monto?"
+entry_points:
+  - private new transaction calculator
+  - public transaction creation
+  - destination refill and destination change actions
+frontend_sources:
+  - solido/apps/solido-app/src/app/dashboard/transactions/new-transaction/transaction-private-calculator/transaction-private-calculator.component.ts
+  - solido/apps/solido-app/src/app/dashboard/transactions/new-transaction/searching-destinations/searching-destinations.component.html
+backend_sources:
+  - saldo/app/Transactions/Transactions/TransactionWithTokenPolicy.php
+  - saldo/app/Transactions/Transactions/TransactionPublicPolicy.php
+  - saldo/app/Transactions/Transactions/TransactionObserverSetStatusFlags.php
+  - saldo/app/Transactions/TransactionHelpers/HelperRepositories/AccountDetailRequiredHelperRepository.php
+  - saldo/app/Transactions/Transactions/UseCases/ValidatePixAddressOrHeldUseCase.php
+  - saldo/app/Transactions/Actions/ChangeDestinationAddress.php
+  - saldo/app/Transactions/Actions/AddDirectTransfers.php
+entities:
+  - account1
+  - account2
+  - account_detail
+  - network
+  - direct_transfer1
+  - direct_transfer2
+  - transaction
+business_rules:
+  - account ownership and system compatibility are validated on authenticated transaction creation
+  - public creation can create or reuse both user identity and required accounts
+  - some systems require account1 and/or account2 while others do not
+  - network selection affects amount calculation and validation behavior
+  - account2 may still need extra account detail before the transaction becomes ready to pay out
+  - user-selected destination account is distinct from backend-assigned operational direct transfers
+  - changing destination can split the operational flow into a new transaction rather than editing the old one in place
+  - destination refill is constrained by transaction origin and current state
+edge_cases:
+  - valid user account does not guarantee operational destination availability
+  - late external validation such as PIX can still move the transaction to HELD
+  - systems with account_detail_required add a second readiness gate after account selection
+  - destination change can be hard to explain because it may generate a second transaction
+unknowns:
+  - deeper account detail requirements per system group
+  - fuller mapping of how directTransfers2 are built and selected
+  - future integration with balance flows once active
+  - broader frontend account selection surfaces beyond the main private calculator

@@ -1,0 +1,25 @@
+domain_id: domain-example
+name: Example domain
+status: draft
+priority: medium
+
+summary: >
+  Explicacion corta del dominio, su responsabilidad principal y su relacion
+  con el producto real.
+
+owns: []
+backend_surface: []
+frontend_surface: []
+source_of_truth: []
+
+core_entities: []
+connected_domains: []
+connected_flows: []
+
+review:
+  owner: unknown
+  confidence: medium
+  last_reviewed_at: YYYY-MM-DD
+  reviewed_against:
+    saldo: COMMIT_SHA
+    solido: COMMIT_SHA

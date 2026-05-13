@@ -1,0 +1,16 @@
+{"case_id":"support-001","area":"support","query":"por que un pedido desaparecio cuando hice dos al mismo tiempo","expected_doc_ids":["flow-concurrent-orders-and-omitted-transactions","simultaneous-orders-omitted"]}
+{"case_id":"support-002","area":"support","query":"por que me manda a otro ticket nuevo","expected_doc_ids":["flow-concurrent-orders-and-omitted-transactions","simultaneous-orders-omitted"]}
+{"case_id":"support-003","area":"support","query":"por que veo el chat pero no puedo escribir","expected_doc_ids":["flow-chat-state-chips-and-support-actions","chat-visible-but-locked"]}
+{"case_id":"support-004","area":"support","query":"que significa to future ready","expected_doc_ids":["flow-create-transaction-and-next-step","to-future-ready-looks-stalled"]}
+{"case_id":"support-005","area":"support","query":"por que entro en held disputed si no subi screenshots","expected_doc_ids":["flow-cancellation-held-mediation-recovery","held-disputed-without-screenshots"]}
+{"case_id":"ux-001","area":"ux","query":"por que me aparece una cotizacion vieja si el link esta vacio","expected_doc_ids":["stale-public-quote-session","flow-system-selection-and-quote-calculator"]}
+{"case_id":"ux-002","area":"ux","query":"por que leer instrucciones cambia el tratamiento del pedido","expected_doc_ids":["instructions-read-side-effects","flow-payment-instructions"]}
+{"case_id":"ux-003","area":"ux","query":"por que una clave pix invalida termina en held","expected_doc_ids":["pix-key-late-held","kamipay","flow-accounts-and-destination-selection"]}
+{"case_id":"marketing-001","area":"marketing","query":"por que paypal abre una landing distinta","expected_doc_ids":["flow-landing-for-systems-and-marketing-preloads"]}
+{"case_id":"marketing-002","area":"marketing","query":"de donde sale el canonical de una landing","expected_doc_ids":["flow-landing-for-systems-and-marketing-preloads"]}
+{"case_id":"marketing-003","area":"marketing","query":"por que un link viejo abre otro sistema","expected_doc_ids":["flow-landing-for-systems-and-marketing-preloads","legacy-system-links-and-replacements"]}
+{"case_id":"product-001","area":"product","query":"que diferencia hay entre acceso publico por transaccion y dashboard","expected_doc_ids":["flow-public-order-creation-and-identity-bootstrap","flow-transaction-visibility-and-status"]}
+{"case_id":"product-002","area":"product","query":"como funciona la calculadora de saldoar","expected_doc_ids":["flow-system-selection-and-quote-calculator"]}
+{"case_id":"product-003","area":"product","query":"que pasa si la tasa publicada expira antes de guardar","expected_doc_ids":["flow-system-selection-and-quote-calculator"]}
+{"case_id":"operations-001","area":"operations","query":"que puede hacer un operador sobre una transaccion","expected_doc_ids":["flow-operator-interventions-and-panel-actions"]}
+{"case_id":"operations-002","area":"operations","query":"como se convierte un mensaje del usuario en tarea","expected_doc_ids":["flow-chat-state-chips-and-support-actions","task"]}

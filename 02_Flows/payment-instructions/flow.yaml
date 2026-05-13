@@ -1,0 +1,94 @@
+flow_id: flow-payment-instructions
+name: Payment instructions
+status: v1
+owner_area: transactions
+evidence_level: confirmed
+abstract: |
+  Explica cómo Saldoar presenta las instrucciones de pago. Cubre las cuatro variantes
+  según tipo de operación: transferencia directa, QR de MercadoPago, crypto y balance.
+  Incluye el mecanismo dual de marcado de lectura (píxel + política de acceso), los
+  efectos internos al marcar instrucciones como leídas, el filtrado de directTransfers1
+  por comportamiento, y los helpers contextuales que modifican la experiencia. Relevante
+  para UX, soporte de pagos y operaciones.
+query_patterns:
+  - "¿dónde veo los datos para hacer la transferencia?"
+  - "no aparecen las cuentas bancarias para pagar"
+  - "¿cómo pago con QR?"
+  - "¿cómo pago con crypto?"
+  - "¿qué pasa cuando marco que ya pagué?"
+  - "el usuario no puede ver las instrucciones de pago"
+  - "¿cuándo se considera que el usuario leyó las instrucciones?"
+  - "¿por qué las instrucciones son diferentes según el tipo de operación?"
+  - "¿qué es directTransfers1?"
+  - "¿qué es el píxel de seguimiento?"
+entry_points:
+  - /t/transactions/v3/{transactionId}/{transactionKey}/{transactionMid}/instructions
+  - /my/dashboard/transactions/v3/{transactionId}/instructions
+front_routes:
+  - file: solido/apps/solido-app/src/ui/routes/transaction-details/instructions-routing.module.ts
+    notes:
+      - child route for public transaction details
+  - file: solido/apps/solido-app/src/ui/routes/transaction-details/dashboard-transaction-details-routing.module.ts
+    notes:
+      - child route for dashboard transaction details
+frontend_sources:
+  - solido/apps/solido-app/src/ui/pages/instructions/instructions.component.ts
+  - solido/apps/solido-app/src/ui/pages/instructions/instructions.component.html
+  - solido/apps/solido-app/src/ui/pages/instructions/instructions-view-model.service.ts
+  - solido/apps/solido-app/src/ui/pages/instructions/components/direct-transfer1-container/direct-transfer1-container.component.ts
+  - solido/apps/solido-app/src/ui/pages/instructions/components/direct-transfer1/direct-transfer1-active/direct-transfer1-active-view-model.service.ts
+  - solido/apps/solido-app/src/ui/pages/instructions/components/transfer-agreement/transfer-agreement.component.ts
+  - solido/apps/solido-app/src/ui/pages/instructions/components/transfer-agreement/transfer-agreement-view-model.service.ts
+  - solido/apps/solido-app/src/ui/pages/instructions/components/transfer-crypto/transfer-crypto.component.ts
+  - solido/apps/solido-app/src/domain/use-cases/search-all-direct-transfer1-use-case.ts
+  - solido/apps/solido-app/src/domain/use-cases/list-direct-transfer2-use-case.ts
+  - solido/apps/solido-app/src/domain/use-cases/send-direct-transfer-action-use-case.ts
+  - solido/apps/solido-app/src/domain/use-cases/search-qr-agreement-use-case.ts
+backend_routes:
+  - route: POST v3/users/{user_id}/direct_transfer_actions
+  - route: POST v3/t/direct_transfer_actions
+  - route: GET v3/users/{user_id}/transactions/{transaction_id}/mercadopagoqr
+  - route: GET v3/t/{transaction_id}/mercadopagoqr
+  - route: GET /transactions/{transaction_mid}/{key}/pixel.jpg
+  - route: GET /transactions/{transaction_mid}/{key}/new-pixel.jpg
+backend_sources:
+  - saldo/routes/api.php
+  - saldo/routes/panel.php
+  - saldo/app/Transactions/DirectTransfers/DirectTransferController.php
+  - saldo/app/Transactions/Http/TransactionPixelController.php
+  - saldo/app/Transactions/DirectTransfers/DirectTransfer1Policy.php
+  - saldo/app/Transactions/Transactions/UseCases/MarkInstructionsReadUseCase.php
+  - saldo/app/Transactions/TransactionTemporalValues/TransactionTemporalValuesService.php
+  - saldo/app/Transactions/TransactionHelpers/TransactionHelperJsonApi/TransactionHelperService.php
+entities:
+  - transaction
+  - direct_transfer1
+  - direct_transfer2
+  - direct_transfer_action
+  - transaction_helper
+  - transaction_temporal_values
+  - transaction_link_instruction
+  - transaction_instructions_redirect_url
+business_rules:
+  - instructions page is assembled from helpers plus send and receive sectors
+  - send sector variant depends on balance, agreement1_id, direct transfers or crypto
+  - instructions read can be marked by pixel request or by direct_transfers1 access policy
+  - mark instructions read sets instructions_read_at and schedules a visited-but-did-not-pay job
+  - direct_transfer_actions are only allowed if the transfer is not already sent and belongs to the current user/transaction context
+  - direct_transfers1 are filtered by behaviour before display
+  - agreement QR is fetched through mercadopagoqr endpoint
+integrations:
+  - mercadopago qr
+  - local mark-as-sent state service
+  - websocket-driven transaction refresh
+  - hidden pixel tracking
+edge_cases:
+  - same flow has multiple UI variants with different components and behaviors
+  - read-tracking is triggered in more than one way
+  - helper banners can substantially alter the experience for the same nominal state
+  - local mark-as-sent state may diverge from backend expectations if not validated end-to-end
+unknowns:
+  - exact persistence model of MarketAtSendService
+  - full catalog of direct_transfer_action values
+  - when transaction_instructions_redirect_urls overrides main instructions UI
+  - full behavior of balance-instructions branch

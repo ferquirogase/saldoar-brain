@@ -1,0 +1,82 @@
+flow_id: flow-transaction-visibility-and-status
+name: Transaction visibility and status
+status: v1
+owner_area: transactions
+evidence_level: confirmed
+abstract: |
+  Explica cómo un usuario consulta el estado de su transacción en Saldoar. Cubre la
+  página pública de consulta por mid y email, el acceso por deep link con y sin login,
+  la detección de validaciones pendientes en WAITING_PAYMENT, el mecanismo de cancelación
+  en contexto público y dashboard, y las redirecciones desde rutas legacy. Relevante
+  para soporte, marketing y UX.
+query_patterns:
+  - "¿cómo consulto el estado de mi pedido?"
+  - "no encuentro mi transacción, cómo la busco"
+  - "¿puedo cancelar mi pedido?"
+  - "el link de mi transacción no funciona"
+  - "¿cuándo se puede cancelar una transacción?"
+  - "¿qué diferencia hay entre consultar sin login y desde el dashboard?"
+  - "¿qué pasa si tengo una validación pendiente en mi transacción?"
+  - "¿por qué me redirige cuando busco mi pedido?"
+  - "¿qué es estado-solicitud?"
+entry_points:
+  - /transaction-states
+  - /:langCode/transaction-states
+  - /estado-solicitud
+  - /t/transactions/v3/{transactionId}/{transactionKey}/{transactionMid}/instructions
+  - /t/transactions/v3/{transactionId}/{transactionKey}/{transactionMid}/states
+  - /t/transactions/v3/{transactionId}/{transactionKey}/{transactionMid}/screenshot
+  - /my/dashboard/transactions/v3/{transactionId}/instructions
+  - /my/dashboard/transactions/v3/{transactionId}/states
+  - /my/dashboard/transactions/v3/{transactionId}/screenshot
+front_routes:
+  - file: solido/apps/solido-app/src/app/app-routing.module.ts
+    notes:
+      - public status page
+      - transaction detail routes
+      - locale-aware status routes
+frontend_sources:
+  - solido/apps/solido-app/src/ui/shared/services/instructions.service.ts
+  - solido/apps/solido-app/src/ui/shared/services/url-handler.service.ts
+  - solido/apps/solido-app/src/ui/pages/transaction-details/transaction-details.component.ts
+  - solido/apps/solido-app/src/app/transactions/pages/transaction-states/transaction-states.component.ts
+backend_routes:
+  - route: GET v3/users/{user_id}/state_chips/{transaction_id}
+  - route: GET v3/users/{user_id}/is-chat-available/{transaction_id}
+  - route: POST v3/users/{user_id}/transactions/{transaction_id}/cancel
+  - route: GET v3/users/{user_id}/transactions/{transaction_id}/mercadopagoqr
+  - route: GET v3/t/state_chips/{transaction_id}
+  - route: GET v3/t/is-chat-available/{transaction_id}
+  - route: POST v3/t/{transaction_id}/cancel
+  - route: GET v3/t/{transaction_id}/mercadopagoqr
+  - route: GET /transactions/{transaction_mid}/{key}/chat-available
+  - route: GET /transactions/{transaction_mid}/{key}/has-pending-validation
+  - route: GET /estado-solicitud
+backend_sources:
+  - saldo/routes/api.php
+  - saldo/routes/panel.php
+  - saldo/app/Core/Legacy/LegacyRedirectionController.php
+  - saldo/app/Transactions/TransactionDetails/PendingValidationController.php
+entities:
+  - transaction
+  - transaction_state_public
+  - state_chip
+  - validation
+  - user
+business_rules:
+  - dashboard context uses beforepath users/{userId}
+  - public context uses beforepath t
+  - cancel flow redirects to /pedido-cancelado after refresh
+  - pending validation link by transaction only applies when state is WAITING_PAYMENT and marked_as_sent is true
+  - screenshot validation link is suppressed if approved-like validations already exist
+integrations:
+  - websocket/private channel
+  - mercadopago qr
+edge_cases:
+  - legacy and current routes coexist
+  - same concept is exposed through public status page and transaction detail deep links
+  - beforepath abstraction hides important API differences
+unknowns:
+  - exact backend lifecycle of transaction_state_public
+  - semantic rules for enabling chat
+  - exact taxonomy and source of state chips

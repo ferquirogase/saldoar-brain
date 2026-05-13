@@ -1,0 +1,47 @@
+domain_id: agreements
+name: Agreements
+status: mapped
+priority: high
+
+summary: >
+  Dominio de rutas operativas basadas en acuerdos. Permite que una transaccion
+  use cuentas o providers preconfigurados con processors, fees y sincronizacion propia.
+
+owns:
+  - agreements
+  - agreement-linked operational accounts
+  - agreement fees
+  - agreement processors
+  - agreement synchronization jobs
+  - internal agreement administration surfaces
+
+backend_surface:
+  - saldo/app/Agreements
+  - saldo/app/Transactions/Jobs/TransactionNextStepUseCase.php
+  - saldo/app/Transactions/Transactions/TransactionAgreementObserver.php
+  - saldo/app/Transactions/Transactions/TransactionEvaluator.php
+  - saldo/routes/panel.php
+
+frontend_surface:
+  - solido/apps/solido-app/src/app/transactions/transaction.ts
+  - solido/apps/solido-app/src/app/transactions/pages/transaction-info/transaction-operation-data/transaction-instructions
+
+core_entities:
+  - Agreement
+  - agreement1_id
+  - agreement2_id
+  - agreement1_fee
+  - agreement2_fee
+
+connected_domains:
+  - transactions
+  - systems-and-integrations
+  - accounts
+  - support-and-operations
+
+connected_flows:
+  - payment-instructions
+  - create-transaction-and-next-step
+  - deals-and-direct-transfer-matching
+  - notifications-mails-and-background-jobs
+  - system-specific-branches

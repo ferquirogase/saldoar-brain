@@ -1,0 +1,45 @@
+integration_id: yativo
+name: Yativo
+status: mapped
+priority: high
+
+summary: >
+  Integracion de liquidez y ruteo bancario que Saldoar usa para ciertos payins
+  y payouts en MXN, CLP, PEN y parte de COP. No aparece como una pantalla
+  dedicada en front: cambia links de pago, datos de cuentas, resolucion de
+  gateways y reconciliacion por webhook.
+
+backend_surface:
+  - saldo/app/External/Yativo/YativoPayinService.php
+  - saldo/app/External/Yativo/YativoPayoutService.php
+  - saldo/app/External/Yativo/Webhooks/YativoWebhookController.php
+  - saldo/app/Liquidity/Adapters/Providers/Yativo/YativoLiquidityProvider.php
+  - saldo/app/Liquidity/Adapters/Providers/Yativo/YativoGateway/YativoGatewayResolver.php
+  - saldo/app/Liquidity/Adapters/Providers/Yativo/Internals/YativoCurrencyToSystem.php
+  - saldo/app/Transactions/DirectTransfers/GoToPay/PayBehaviourResolver.php
+
+frontend_surface:
+  - solido/apps/solido-app/src/ui/pages/instructions/instructions.page.ts
+  - solido/apps/solido-app/src/ui/pages/instructions/components/helpers-container/helpers-container.component.ts
+  - solido/apps/solido-app/src/ui/pages/instructions/components/card-button-pay/card-button-pay.component.ts
+
+query_patterns:
+  - "como decide saldoar si usa yativo para cierto sistema"
+  - "por que a veces me manda a un link para pagar"
+  - "que sistemas bancarios pasan por yativo"
+  - "por que en colombia a veces cae en nequi y otras en banco"
+  - "que pasa si yativo no tiene balance"
+  - "de donde sale el webhook de yativo"
+
+connected_flows:
+  - system-specific-branches
+  - accounts-and-destination-selection
+  - notifications-mails-and-background-jobs
+
+failure_modes:
+  - unsupported_system
+  - gateway_resolution_failed
+  - invalid_beneficiary_payment_data
+  - provider_request_error
+  - webhook_signature_invalid
+  - insufficient_provider_balance

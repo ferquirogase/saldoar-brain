@@ -1,0 +1,68 @@
+flow_id: flow-concurrent-orders-and-omitted-transactions
+name: Concurrent orders and omitted transactions
+status: v1
+owner_area: transactions
+evidence_level: confirmed
+abstract: |
+  Explica qué pasa cuando un usuario tiene múltiples pedidos en WAITING_PAYMENT
+  simultáneamente. Cubre el umbral de pedidos concurrentes (basado en user.level),
+  el mecanismo de limpieza automática que preserva el más reciente y omite los demás
+  moviéndolos a TO_NEW_TICKET, y cómo la lectura de instrucciones determina si un
+  pedido es protegido o descartable. Relevante para soporte cuando el usuario reporta
+  que desapareció un pedido.
+query_patterns:
+  - "¿por qué desapareció mi pedido?"
+  - "tenía dos pedidos y uno se canceló solo"
+  - "¿cuántos pedidos puedo tener activos al mismo tiempo?"
+  - "¿qué es un pedido omitido?"
+  - "el usuario no puede crear más pedidos"
+  - "¿por qué me dice que tengo demasiados pedidos pendientes?"
+  - "se canceló el pedido equivocado"
+  - "¿qué pasa si creo dos pedidos a la vez?"
+entry_points:
+  - creation of multiple transactions for the same user in a close time window
+  - transition of a transaction into WAITING_PAYMENT
+  - reading instructions on one transaction while other waiting-payment transactions exist
+frontend_sources:
+  - indirect dependency on payment instructions flow through instructions_read_at
+backend_sources:
+  - saldo/app/Transactions/Jobs/TransactionNextStepUseCase.php
+  - saldo/app/Transactions/Jobs/EvaluatorPipes/OnlyOneTransactionWaitingPayment.php
+  - saldo/app/Transactions/Jobs/CancelMultipleWaitingPaymentTransactions.php
+  - saldo/app/Transactions/Events/TransactionStateChangedDebouncedEventDispatcher.php
+  - saldo/app/Transactions/TransactionHelpers/HelperRepositories/OmittedOrdersHelperRepository.php
+  - saldo/app/Transactions/TransactionHelpers/Containers/HelpersContainerRepository.php
+  - saldo/app/Transactions/DirectTransfers/BehaviourEnum.php
+  - saldo/app/Transactions/States/StateEnum.php
+  - saldo/app/Transactions/DirectTransfers/Support/DeleteDirectTransfersService.php
+  - saldo/app/Transactions/Commands/Pipes/TransactionReadyForCancelOrHeld.php
+  - saldo/resources/lang/es/transaction_helpers.php
+entities:
+  - transaction
+  - direct_transfer1
+  - transaction_helper
+business_rules:
+  - advancing to WAITING_PAYMENT runs OnlyOneTransactionWaitingPayment as a pre-pipe
+  - concurrent waiting-payment count only considers transactions with instructions_read_at not null
+  - pending operation threshold is max(2, user.level + 1)
+  - when a transaction enters WAITING_PAYMENT, a debounced cleanup checks sibling waiting-payment transactions of the same user
+  - newest/read-most-recent transaction is preserved as the main one
+  - unread sibling waiting-payment transactions can lose their directTransfers1 and be moved to TO_NEW_TICKET
+  - omitted orders expose a dedicated helper in transaction_helpers
+  - deletion behavior distinguishes REMOVED_UNREAD from REMOVED_READ
+states:
+  - TO_NEW_TICKET
+  - TO_FUTURE
+  - TO_FUTURE_READY
+  - WAITING_PAYMENT
+integrations:
+  - debounced state-change dispatcher
+  - lock mechanism for requeueing cleanup
+edge_cases:
+  - UX copy says "two pending orders" while technical threshold depends on user level
+  - race conditions may affect exact reproduction order
+  - reading instructions changes whether a concurrent order is protected or omittable
+unknowns:
+  - exact user-level matrix for allowed concurrent pending transactions in practice
+  - full notification surface for TO_NEW_TICKET across channels
+  - operational visibility of winner/loser order selection for support teams

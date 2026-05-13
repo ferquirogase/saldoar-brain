@@ -1,0 +1,33 @@
+edge_case_id: instructions-read-side-effects
+name: Instructions Read Side Effects
+status: v1
+severity: high
+evidence_level: confirmed
+
+summary: >
+  Abrir instrucciones o consultar direct_transfers1 en WAITING_PAYMENT no es
+  neutro: marca instructions_read_at, crea una traza interna y agenda jobs de
+  seguimiento. Esa lectura despues pesa en concurrencia, reminders y timing de
+  cancelacion.
+
+query_patterns:
+  - "por que me empiezan a seguir si solo abri instrucciones"
+  - "que pasa cuando el usuario entra a instrucciones"
+  - "por que leer instrucciones cambia el tratamiento del pedido"
+
+connected_flows:
+  - flow-payment-instructions
+  - flow-notifications-mails-and-background-jobs
+  - flow-concurrent-orders-and-omitted-transactions
+connected_entities:
+  - transaction
+  - state
+connected_integrations: []
+connected_domains:
+  - transactions
+
+source_of_truth:
+  - saldo/app/Transactions/Transactions/UseCases/MarkInstructionsReadUseCase.php
+  - saldo/app/Transactions/Http/TransactionPixelController.php
+  - saldo/app/Transactions/DirectTransfers/DirectTransfer1Policy.php
+

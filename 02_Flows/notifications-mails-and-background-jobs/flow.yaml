@@ -1,0 +1,75 @@
+flow_id: flow-notifications-mails-and-background-jobs
+name: Notifications, mails and background jobs
+status: v1
+owner_area: platform
+evidence_level: confirmed
+abstract: |
+  Explica cuándo y por qué Saldoar envía notificaciones al usuario. Cubre las
+  notificaciones por cambio de estado, el primer email post-creación, el recordatorio
+  por instrucciones leídas sin pago, las notificaciones por screenshots y validaciones,
+  y los jobs en background que pueden disparar efectos visibles con retraso. Relevante
+  para soporte (por qué no llegó un email) y producto (cómo funciona el sistema de
+  alertas).
+query_patterns:
+  - "¿por qué no recibí el email de confirmación?"
+  - "no me llegó ninguna notificación"
+  - "¿cuándo envía Saldoar emails?"
+  - "¿por qué me llegó un email días después?"
+  - "¿qué emails envía Saldoar cuando cambia el estado del pedido?"
+  - "el usuario dice que no le llegaron las instrucciones por email"
+  - "¿cuándo se envía el recordatorio de pago?"
+  - "¿por qué los efectos de una acción aparecen tarde?"
+entry_points:
+  - transaction created
+  - transaction state changed
+  - instructions read
+  - screenshots approved or rejected
+  - validation approved
+  - periodic reminder commands
+  - state chip actions
+frontend_sources:
+  - no dedicated single frontend surface; effects are later seen in email, chat text, transaction status and reminders
+backend_sources:
+  - saldo/app/Transactions/Notifications/StateNotificationsRepository.php
+  - saldo/app/Transactions/Transactions/TransactionNotificationHelper.php
+  - saldo/app/Transactions/Transactions/TransactionObserverFirstEmail.php
+  - saldo/app/Transactions/Notifications/TransactionFirstEmailJob.php
+  - saldo/app/Transactions/Transactions/UseCases/MarkInstructionsReadUseCase.php
+  - saldo/app/Transactions/Notifications/DirectTransfers/DirectTransferVisitedButDontPaidJob.php
+  - saldo/app/Users/Commands/UsersSendReminderCommand.php
+  - saldo/app/Users/Commands/UsersReminderMarkReceivedCommand.php
+  - saldo/app/Users/Commands/UsersReminderClientCommand.php
+  - saldo/app/Transactions/Screenshots/ScreenshotsProcessor.php
+  - saldo/app/Transactions/Listeners/NotifyIfIsTheFirstTimeWithWiseListener.php
+  - saldo/app/Transactions/Transactions/TransactionStateObserver.php
+  - saldo/app/Transactions/Transactions/UseCases/ApproveValidationAndSendInstructionsUseCase.php
+  - saldo/app/Transactions/Listeners/DispatchTransactionNextStepToFutureReadyJobListener.php
+  - saldo/app/Transactions/Commands/TransactionsProcessPublicStatesCommand.php
+  - saldo/app/Transactions/StateChips/Jobs/ApplyTransactionActionJob.php
+entities:
+  - transaction
+  - state_notification
+  - notification_template
+  - state
+  - screenshot
+  - validation
+  - task
+  - state_chip
+business_rules:
+  - only a subset of transaction states map to standard state notifications
+  - first transaction email is sent asynchronously after creation
+  - reading instructions schedules a cancellation-warning reminder if payment is not sent soon after
+  - reminders and crm-style notifications use their own commands and eligibility filters
+  - screenshots and validation events can notify users independently of the main state-notification map
+  - state changes can dispatch more jobs and listeners beyond direct user notification
+  - background actions triggered by state chips can mutate transactions without a direct ui action at that moment
+edge_cases:
+  - review states appear under-notified in the standard map
+  - multiple notification families coexist: state-based, evidence-based, crm/reminder and special-case templates
+  - timing can be hard to explain because of cache checks, throttles, debounces and working-hour logic
+  - visible effects may arrive well after the originating event
+unknowns:
+  - full map of notifyUserByTemplate template ids
+  - complete inventory of secondary commands and jobs outside the core set mapped here
+  - full database-notification vs email channel behavior
+  - deeper integration of deals alerts and smart opportunities into a separate marketing domain map

@@ -1,0 +1,82 @@
+flow_id: flow-system-selection-and-quote-calculator
+name: System selection and quote calculator
+status: v1
+owner_area: transactions
+evidence_level: confirmed
+abstract: |
+  Explica la capa previa a la creacion real del pedido: como Saldoar muestra
+  sistemas disponibles, hidrata una cotizacion desde URL o sesion, calcula
+  montos por send/receive, permite o bloquea invertir sistemas y empuja luego
+  al formulario de creacion publica. Sirve para entender fricciones iniciales
+  de UX, landings y cambios de cotizacion.
+query_patterns:
+  - "como funciona la calculadora de saldoar"
+  - "por que me cambia el monto cuando invierto los sistemas"
+  - "por que no puedo elegir cierto metodo"
+  - "por que un link viejo abre otro sistema"
+  - "como se arma la URL de la cotizacion"
+  - "por que cambia la cotizacion al guardar"
+  - "que pasa si la tasa publicada expira antes de guardar"
+  - "por que me aparece rate dropped al confirmar"
+  - "por que no puedo invertir banco y paypal"
+  - "como decide saldoar el monto por defecto"
+  - "por que aparece banco a paypal por defecto"
+entry_points:
+  - /b
+  - /b/{system1}/{system2}/{amount1}/{amount2}
+  - /{langCode}/b/{system1}/{system2}/{amount1}/{amount2}
+  - landing-marketing with embedded transaction calculator
+  - landing-for-systems and other surfaces using app-transaction-calculator
+front_routes:
+  - solido route b and localized b
+  - legacy a/b route matchers
+  - landing pages that mount the calculator
+backend_routes:
+  - POST JSON:API transactions through public transaction context
+frontend_sources:
+  - solido/apps/solido-app/src/app/transactions/components/transaction-calculator/transaction-calculator.component.ts
+  - solido/apps/solido-app/src/app/transactions/components/transaction-calculator/system-select/system-select.component.ts
+  - solido/apps/solido-app/src/app/transactions/components/transaction-calculator/invert-systems/invert-systems.component.ts
+  - solido/apps/solido-app/src/app/transactions/components/transaction-form/transaction-form.component.ts
+  - solido/apps/solido-app/src/app/home/home-step-b.component.ts
+  - solido/apps/solido-app/src/app/transactions/transaction.ts
+  - solido/apps/solido-app/src/app/transactions/transaction-url.service.ts
+  - solido/apps/solido-app/src/app/transactions/transaction-amount-calculator.ts
+  - solido/apps/solido-app/src/app/core/helpers/replace-system.helper.ts
+  - solido/apps/solido-app/src/app/transactions/transaction-validators-provider/transaction-validators/minimum-values-validator.ts
+  - solido/apps/solido-app/src/app/transactions/transaction-validators-provider/transaction-validators/system-equals-validator.ts
+  - solido/apps/solido-app/src/app/app-routing.module.ts
+backend_sources:
+  - saldo/app/Http/Controllers/JsonApiTransactionController.php
+  - saldo/app/Transactions/Transactions/TransactionWithKeySchema.php
+  - saldo/app/Transactions/Transactions/TransactionPublicPolicy.php
+  - saldo/app/Transactions/Transactions/Validators/TransactionSystemMinimumValuesValidator.php
+  - saldo/app/Transactions/ErrorCodesEnum.php
+entities:
+  - transaction
+  - system
+  - account
+  - network
+  - rate
+integrations:
+  - websocket system updates
+  - quote session persistence
+  - rates refresh
+  - SEO and landing metadata updates
+business_rules:
+  - front exposes only sendable and receivable systems without replacement_system_id
+  - URL and local session can both hydrate the initial quote
+  - replacement systems can rewrite old URLs to active systems
+  - quote can be built from send or receive amount and the active amount changes URL semantics
+  - network can modify the calculated result for crypto-like systems
+  - backend remains source of truth and can reject same-system pairs, forbidden pairs, invalid minimums or dropped rates
+edge_cases:
+  - calculator may default to banco and palpal when route or country bootstrap does not provide a better pair
+  - invert is blocked if the current send system cannot receive or current receive system cannot send
+  - replacement_system_id can make a historical link open a different visible system
+  - quote session can restore stale context if not invalidated carefully
+  - a quote that looked valid in front can still fail on save with rate_dropped or stricter backend validation
+unknowns:
+  - full business criteria inside CurrencyPiorityService for all active pairs
+  - complete inventory of landing or modal surfaces that reuse this calculator with different wrappers
+  - current production weight of legacy a routes versus b routes

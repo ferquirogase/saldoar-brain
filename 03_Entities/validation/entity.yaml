@@ -1,0 +1,68 @@
+entity_id: validation
+name: Validation
+status: mapped
+priority: critical
+
+summary: >
+  Entidad de verificación y evidencia. Registra chequeos aplicados a un usuario
+  o a una transacción, sus estados, tipo, archivos y observaciones.
+
+backend_model:
+  - saldo/app/Validations/Validations/Validation.php
+  - saldo/app/Validations/ValidationTypes/ValidationType.php
+  - saldo/app/Validations/Validations/ValidationPolicy.php
+  - saldo/app/Validations/Validations/ValidationStatusEnum.php
+
+frontend_model:
+  - solido/apps/solido-app/src/app/core/resources/validation.ts
+
+key_attributes:
+  - validable_type
+  - validable_id
+  - validation_type_id
+  - status
+  - score
+  - observations
+  - private_observations
+  - author_user_id
+  - created_at
+
+related_type_fields:
+  - title
+  - important
+  - can_be_rejected
+  - can_be_requested
+  - is_public
+  - has_files
+  - min_quantity
+
+main_statuses:
+  - none
+  - requested
+  - processing
+  - pending
+  - pre_approved
+  - approved
+  - rejected
+  - disqualified
+  - skipped
+  - expired
+
+key_relationships:
+  - validable
+  - validationType
+  - authorUser
+  - files
+  - metas
+
+connected_domains:
+  - validations
+  - transactions
+  - users
+  - support-and-operations
+
+connected_flows:
+  - identity-validations
+  - payment-instructions
+  - public-order-creation-and-identity-bootstrap
+  - notifications-mails-and-background-jobs
