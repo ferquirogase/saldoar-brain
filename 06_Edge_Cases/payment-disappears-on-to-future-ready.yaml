@@ -1,0 +1,64 @@
+edge_case_id: payment-disappears-on-to-future-ready
+name: Payment Disappears On To Future Ready
+status: v1
+severity: high
+evidence_level: confirmed
+
+summary: >
+  Cuando un pedido tiene múltiples destinos asignados, el usuario envía a uno (A)
+  y remueve el otro (B) pidiendo un reemplazo, si el sistema no encuentra nuevos
+  destinos disponibles mueve el pedido a TO_FUTURE_READY. En ese estado, el pago
+  ya realizado a A no aparece en la pantalla de instrucciones. El usuario cree que
+  su pago "desapareció". Verificado por simulación.
+
+query_patterns:
+  - "pagué y mi pago no aparece en instrucciones"
+  - "hice una transferencia y no la veo en el pedido"
+  - "el pedido está en buscando destinos pero perdí mi pago"
+  - "marqué como enviado y el pago desapareció"
+  - "mi pago no figura después de que el pedido cambió de estado"
+  - "por qué no se ve el envío que ya hice"
+
+connected_flows:
+  - flow-payment-instructions
+  - flow-create-transaction-and-next-step
+connected_entities:
+  - direct_transfer1
+  - transaction
+  - state
+connected_domains:
+  - transactions
+
+triggering_condition:
+  - pedido en WAITING_PAYMENT con 2+ directTransfers1 asignados
+  - usuario envía a destino A (sent=true o pago real sin marcar)
+  - usuario ejecuta DestinationDontWork sobre destino B ("no puedo pagar" / "necesito otro destino")
+  - sistema no encuentra nuevos destinos disponibles
+  - pedido pasa a TO_FUTURE_READY
+
+observed_behavior:
+  - pantalla de instrucciones muestra estado "Buscando destinos" (TO_FUTURE_READY)
+  - el pago ya realizado a destino A no se muestra en la pantalla
+  - usuario no tiene forma de saber que su pago fue recibido o procesado
+  - usuario reporta que "su pago desapareció"
+
+classification: friccion UX critica / posible gap de logica backend
+
+key_code_paths:
+  - saldo/app/Transactions/DirectTransfers/DirectTransferActions/Actions/DestinationDontWork.php
+  - saldo/app/Transactions/Processors/Internals/DirectTransfersApplicator.php
+  - saldo/app/Transactions/DirectTransfers/DirectTransfer1Schema.php
+  - solido/apps/solido-app/src/ui/pages/instructions/instructions.component.ts (getCurrentState)
+  - solido/apps/solido-app/src/ui/pages/instructions/components/direct-transfer1-container/direct-transfer1-container.component.ts
+
+source_of_truth:
+  - 02_Flows/payment-instructions/README.md
+  - saldo/app/Transactions/DirectTransfers/DirectTransferActions/Actions/DestinationDontWork.php
+  - saldo/app/Transactions/DirectTransfers/DirectTransfer1Schema.php
+  - saldo/app/Transactions/DirectTransfers/DirectTransferObserver.php
+  - saldo/app/Transactions/Processors/Internals/DirectTransfersApplicator.php
+
+unknowns:
+  - mecanismo exacto por el que A termina invisible (si queda con deleted_at o si la UI lo omite por otra razón)
+  - si la protección del Observer (sent=true impide borrar) se cumple en este path o hay un bypass
+  - comportamiento exacto cuando A fue pagado en el mundo real pero no marcado como enviado en la app

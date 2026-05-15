@@ -40,6 +40,7 @@ Campos minimos sugeridos en YAML:
 | `chat-visible-but-locked` | friccion UX por control backend | `chat-state-chips-and-support-actions`, `transaction-visibility-and-status` |
 | `held-disputed-without-screenshots` | comportamiento esperado dificil de explicar | `cancellation-held-mediation-recovery` |
 | `to-future-ready-looks-stalled` | estado valido con apariencia de bloqueo | `create-transaction-and-next-step`, `chat-state-chips-and-support-actions` |
+| `payment-disappears-on-to-future-ready` | friccion UX critica / gap de logica backend | `payment-instructions`, `create-transaction-and-next-step` |
 
 ## Como usar esta carpeta
 
