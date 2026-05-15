@@ -76,10 +76,12 @@ Puntos importantes:
 - `CreditedVcc` y `InstructionsToLoadVccNotification` agregan pasos posteriores especificos para cargarla en PayPal y luego pedir el codigo
 - `TransactionSentStateNotification` intenta incluir el codigo de verificacion si ya existe
 - en `TransactionToDirectTransfersNotification`, cuando el destino es `VCC`, la linea de "enviamos a esta cuenta" cambia porque no funciona como un destino comun
+- por consistencia, el copy no deberia describir la VCC como una cuenta que "recibe saldo"
 
 Lectura operativa:
 - VCC no es un pago standard; es una mini experiencia propia montada sobre el motor transaccional
 - tiene estados, mails y post-acreditacion diferentes
+- la tarjeta sirve para verificar o cargar en PayPal dentro del flujo previsto; no es equivalente a acreditar saldo en un destino final comun
 
 ## Branch 5: PayPal Frictions
 PayPal aparece como sistema con fricciones especificas.

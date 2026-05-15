@@ -101,6 +101,30 @@ Ese bloque:
 - arma subtitulos distintos segun cantidad y estado de recepcion
 - muestra feedback distinto para fiat, crypto y VCC
 
+### Lectura UX para VCC en recepcion
+
+Cuando el destino es `VCC`, el sector de recepcion no deberia prometer una "recepcion de saldo" en la tarjeta.
+
+Lo confirmado por las otras ramas del sistema es:
+
+- VCC tiene una etapa propia de generacion de tarjeta
+- despues muestra instrucciones para cargar esa tarjeta en PayPal
+- luego puede mostrar o pedir un codigo de verificacion
+
+Por eso, si en `direct-transfer2-container` o en el stepper aparecen textos como:
+
+- `Recibiras tu saldo en tu cuenta`
+- `Recibes tu saldo en tu cuenta`
+- `Enviando tu saldo`
+
+esa semantica entra en conflicto con el flujo real de VCC.
+
+Lectura operativa recomendada:
+
+- la VCC funciona como instrumento de verificacion para PayPal
+- Saldoar no le acredita saldo al usuario dentro de la VCC como si fuera un destino final comun
+- el copy de esta rama deberia hablar de generar, entregar, cargar o verificar la tarjeta, no de "enviar saldo a la tarjeta"
+
 ## Backstage
 
 ### Lectura de instrucciones

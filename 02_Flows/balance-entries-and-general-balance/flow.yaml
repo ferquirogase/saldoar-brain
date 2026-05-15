@@ -1,0 +1,80 @@
+flow_id: flow-balance-entries-and-general-balance
+name: Balance entries and general balance
+status: v1
+owner_area: transactions
+evidence_level: confirmed
+abstract: |
+  Explica cómo funciona el sistema de balance de Saldoar: qué es un Entry, cuándo
+  se crea, cómo evoluciona su status según el estado de la transacción asociada, y
+  por qué el balance general no refleja un ingreso hasta que la transacción es
+  confirmada. Cubre depósito, retiro, swap y transferencia como operaciones de
+  balance. Relevante para soporte (por qué no se ve el saldo), producto (diseño
+  de la lógica pendiente/aprobado) y UX (por qué un movimiento aparece en la lista
+  individual pero no suma al total).
+query_patterns:
+  - "¿por qué el balance general no se actualizó después de un depósito?"
+  - "hice un ingreso y no aparece en mi saldo disponible"
+  - "¿por qué el movimiento aparece en la lista pero no suma al balance?"
+  - "¿qué es un entry de balance?"
+  - "¿cuándo se acredita el saldo en balance?"
+  - "el balance individual muestra el movimiento pero el general no"
+  - "¿por qué el pedido de depósito a balance figura como enviando?"
+  - "¿por qué una operación de balance aparece en la lista de pedidos?"
+  - "¿cómo se calcula el balance disponible del usuario?"
+  - "¿qué diferencia hay entre balance individual y balance general?"
+entry_points:
+  - /my/dashboard/balance
+frontend_sources:
+  - solido/apps/solido-app/src/ui/features/balance/application/strategies/deposit-strategy.ts
+  - solido/apps/solido-app/src/ui/features/balance/application/strategies/withdraw-strategy.ts
+  - solido/apps/solido-app/src/ui/features/balance/ui/components/entries-list/entries-list.component.ts
+  - solido/apps/solido-app/src/ui/features/balance/ui/components/balances-list/balances-list.component.ts
+  - solido/apps/solido-app/src/ui/features/balance/ui/components/balances-list/balances-list.view-model.service.ts
+  - solido/apps/solido-app/src/ui/features/balance/ui/balance.view-model.service.ts
+backend_sources:
+  - saldo/app/Balances/BalanceServiceProvider.php
+  - saldo/app/Balances/Entries/Entry.php
+  - saldo/app/Balances/Entries/EntryStatusEnum.php
+  - saldo/app/Balances/Entries/EntryBehaviourEnum.php
+  - saldo/app/Balances/Entries/Listeners/CreateDepositEntryOnTransactionCreatedListener.php
+  - saldo/app/Balances/Entries/Listeners/CreateWithdrawalEntryOnTransactionCreatedListener.php
+  - saldo/app/Balances/Entries/Listeners/UpdateDepositEntryStatusListener.php
+  - saldo/app/Balances/Entries/Listeners/UpdateWithdrawalEntryStatusListener.php
+  - saldo/app/Balances/Balances/BalanceUpdateService.php
+  - saldo/app/Balances/Balances/BalanceRepository.php
+  - saldo/app/Balances/Observers/BalanceUpdaterEntryObserver.php
+entities:
+  - entry
+  - balance
+  - transaction
+  - system
+business_rules:
+  - toda operación de balance (deposit, withdrawal, swap, transfer) crea una transacción normal y un Entry asociado
+  - el Entry de depósito nace con status PENDING_DEPOSIT; el de retiro con PENDING_WITHDRAWAL
+  - el status del Entry se sincroniza con el estado de la transacción vía TransactionStateChangedEvent
+  - estados de transacción CREDITED_PAYMENT / PRE_APPROVED_SENT / SENT / MEDIATION mueven el Entry a APPROVED
+  - estados CANCELED / SCAMMED / NONE mueven el Entry a REJECTED
+  - estados WAITING_PAYMENT / HELD / TO_FUTURE / TO_FUTURE_READY / VALIDATION_REQUIRED mantienen el Entry en PENDING
+  - el balance general suma únicamente entries con status APPROVED o PENDING_WITHDRAWAL
+  - PENDING_WITHDRAWAL suma al balance general desde la creación del retiro, antes de confirmar — reserva el saldo
+  - PENDING_DEPOSIT no suma al balance general hasta ser APPROVED — evita saldo inflado no confirmado
+  - el balance general se recalcula en cada save de Entry vía BalanceUpdaterEntryObserver
+  - el retiro falla en creación si el balance disponible es insuficiente (cheque en DB transaction)
+  - el pedido creado por una operación de balance aparece en la lista de pedidos como cualquier otra transacción
+  - el label "Enviando" en la lista de pedidos corresponde al estado 12 (CREDITED_PAYMENT) de la transacción
+edge_cases:
+  - el movimiento aparece en la lista individual de entries antes de impactar el balance general
+  - el label "Enviando" en lista de pedidos puede confundir al usuario que espera ver su saldo acreditado de inmediato
+  - PENDING_WITHDRAWAL descuenta del balance inmediatamente al crear el retiro, sin esperar confirmación
+  - si la transacción de retiro queda en HELD o WAITING_PAYMENT, el Entry sigue como PENDING_WITHDRAWAL y el saldo sigue reservado
+unknowns:
+  - comportamiento exacto de swap y transfer a nivel de Entry (no trazado en esta iteración)
+  - si existen entries no atados a transaction (entryable distinto de transaction)
+  - cómo se muestra el estado del Entry en la UI de balance individual (pending vs approved)
+review:
+  owner: producto
+  confidence: high
+  last_reviewed_at: 2026-05-15
+  reviewed_against:
+    saldo: b88d69f2e1e75df4e00430400782c42a6a6fd286
+    solido: 44bec4f48d5e3796b7c2d49b5fae2695c3bfdad2

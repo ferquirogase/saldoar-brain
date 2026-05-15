@@ -36,6 +36,7 @@ Campos minimos sugeridos en YAML:
 | `legacy-system-links-and-replacements` | comportamiento esperado con impacto SEO/marketing | `landing-for-systems-and-marketing-preloads` |
 | `pix-key-late-held` | comportamiento esperado con friccion alta | `accounts-and-destination-selection`, `kamipay`, `cancellation-held-mediation-recovery` |
 | `instructions-read-side-effects` | comportamiento esperado poco visible | `payment-instructions`, `notifications-mails-and-background-jobs` |
+| `vcc-copy-looks-like-balance-reception` | friccion UX por semantica incorrecta | `payment-instructions`, `system-specific-branches` |
 | `chat-visible-but-locked` | friccion UX por control backend | `chat-state-chips-and-support-actions`, `transaction-visibility-and-status` |
 | `held-disputed-without-screenshots` | comportamiento esperado dificil de explicar | `cancellation-held-mediation-recovery` |
 | `to-future-ready-looks-stalled` | estado valido con apariencia de bloqueo | `create-transaction-and-next-step`, `chat-state-chips-and-support-actions` |
