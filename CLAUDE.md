@@ -31,6 +31,7 @@ Responde preguntas de soporte, marketing, UX y producto sobre:
 | Visibilidad y estado de transacción | `02_Flows/transaction-visibility-and-status/` | Consulta pública, deep links, validaciones pendientes, cancelación, redirects legacy |
 | Instrucciones de pago | `02_Flows/payment-instructions/` | Variantes por tipo de operación, lectura dual, efectos internos, helpers |
 | Validaciones de identidad | `02_Flows/identity-validations/` | DNI, selfie, Facebook, biométrica (Veriff), screenshot, reglas de bloqueo |
+| Balance: entries y balance general | `02_Flows/balance-entries-and-general-balance/` | Entry, ciclo de vida deposit/withdrawal, por qué el balance general no refleja movimientos pendientes |
 
 ## Cómo responder preguntas con este repo
 
@@ -54,6 +55,9 @@ Responde preguntas de soporte, marketing, UX y producto sobre:
 | `instructions_read_at` | Timestamp que registra cuándo el usuario abrió las instrucciones por primera vez |
 | `marked_as_sent` | Flag que indica si el comprador marcó su pago como enviado |
 | `transaction_mid` | ID público de la transacción, visible en la URL |
+| `Entry` | Registro de un movimiento de balance (deposit, withdrawal, swap, transfer); su status determina si impacta el balance general |
+| `PENDING_DEPOSIT` | Status de Entry de depósito no confirmado — no suma al balance general |
+| `PENDING_WITHDRAWAL` | Status de Entry de retiro — descuenta del balance general de inmediato como reserva |
 
 ## Nivel de evidencia
 

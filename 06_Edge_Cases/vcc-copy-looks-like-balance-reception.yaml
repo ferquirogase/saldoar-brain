@@ -1,0 +1,37 @@
+edge_case_id: vcc-copy-looks-like-balance-reception
+name: VCC Copy Looks Like Balance Reception
+status: v1
+severity: medium
+evidence_level: confirmed
+
+summary: >
+  En la rama VCC, usar copy de "recibir saldo" o "enviar saldo" genera un modelo
+  mental incorrecto. La documentacion confirmada describe una experiencia de
+  generacion de tarjeta, carga en PayPal y verificacion, no una acreditacion de
+  saldo en la VCC como destino final comun.
+
+query_patterns:
+  - "por que en VCC dice recibir saldo si solo sirve para verificar PayPal"
+  - "VCC recibe saldo o solo verifica la cuenta"
+  - "por que el stepper dice enviando tu saldo en una operacion VCC"
+
+connected_flows:
+  - flow-payment-instructions
+  - flow-system-specific-branches
+connected_entities:
+  - transaction
+  - direct_transfer2
+  - system
+connected_integrations:
+  - paypal
+connected_domains:
+  - transactions
+  - systems-and-integrations
+
+source_of_truth:
+  - 02_Flows/payment-instructions/README.md
+  - 02_Flows/system-specific-branches/README.md
+  - saldo/app/Transactions/Notifications/StateNotifications/TransactionPreApprovedSentStateNotification.php
+  - saldo/app/Transactions/Notifications/StateNotifications/SpecialMethod/CreditedVcc.php
+  - saldo/app/Transactions/Notifications/InstructionsToLoadVccNotification.php
+  - saldo/app/Transactions/Notifications/StateNotifications/TransactionSentStateNotification.php
