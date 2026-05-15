@@ -81,10 +81,25 @@ Eso genera un corpus JSONL listo para indexar por documento logico, no por boots
 | `transaction-visibility-and-status` | Consulta de estado, deep links, validaciones pendientes, cancelacion, redirects legacy |
 | `payment-instructions` | Instrucciones de pago por tipo de operacion, lectura dual, helpers contextuales |
 | `identity-validations` | Validaciones de identidad: DNI, selfie, Facebook, biometrica (Veriff), screenshot |
+| `balance-entries-and-general-balance` | Entry, ciclo deposit/withdrawal, por que el balance general no refleja movimientos pendientes |
+
+## Edge cases documentados
+
+| Edge Case | Tipo |
+|---|---|
+| `simultaneous-orders-omitted` | Comportamiento esperado con friccion UX |
+| `stale-public-quote-session` | Debt UX / continuidad ambigua |
+| `legacy-system-links-and-replacements` | Comportamiento esperado con impacto SEO/marketing |
+| `pix-key-late-held` | Comportamiento esperado con friccion alta |
+| `instructions-read-side-effects` | Comportamiento esperado poco visible |
+| `vcc-copy-looks-like-balance-reception` | Friccion UX por semantica incorrecta |
+| `chat-visible-but-locked` | Friccion UX por control backend |
+| `held-disputed-without-screenshots` | Comportamiento esperado dificil de explicar |
+| `to-future-ready-looks-stalled` | Estado valido con apariencia de bloqueo |
+| `payment-disappears-on-to-future-ready` | Friccion UX critica / gap de logica backend |
 
 ## Siguiente expansion sugerida
 
-1. `dashboard-balances-and-movements`
-2. `public-system-landings`
-3. `user-onboarding`
-4. `refund-and-dispute`
+1. `public-system-landings`
+2. `user-onboarding`
+3. `refund-and-dispute`
