@@ -104,6 +104,36 @@ Preguntas sobre reglas de negocio, decisiones de diseño del sistema y por qué 
 
 ---
 
+## ¿Por qué un movimiento de balance aparece en la lista pero no suma al total disponible?
+
+**Respuesta corta**: Porque el depósito está en `PENDING_DEPOSIT` — ese estado está excluido deliberadamente del cálculo del balance general hasta que la transacción sea confirmada.
+
+**Contexto**: El balance general (`BalanceUpdateService`) solo suma entries con status `APPROVED` o `PENDING_WITHDRAWAL`. Un depósito recién creado empieza en `PENDING_DEPOSIT` y pasa a `APPROVED` recién cuando la transacción asociada llega a `CREDITED_PAYMENT` o `SENT`. La lista de movimientos muestra el Entry desde el momento de creación, pero el total disponible no lo refleja hasta que está confirmado. Esto previene que el usuario vea saldo que todavía no fue verificado.
+
+**Fuente**: `02_Flows/balance-entries-and-general-balance/`
+
+---
+
+## ¿Por qué el saldo disponible cae de inmediato al crear un retiro?
+
+**Respuesta corta**: Porque el retiro crea un Entry en `PENDING_WITHDRAWAL`, que sí descuenta del balance general desde el momento de creación — actúa como reserva inmediata.
+
+**Contexto**: A diferencia del depósito, `PENDING_WITHDRAWAL` está incluido en el cálculo del balance general. El saldo queda reservado aunque el retiro todavía no haya sido procesado. Si el retiro se cancela o falla, el Entry pasa a `REJECTED` y el saldo se libera en el próximo recálculo. El recálculo no es periódico — ocurre en cada `save()` de cualquier Entry del usuario para ese sistema.
+
+**Fuente**: `02_Flows/balance-entries-and-general-balance/`
+
+---
+
+## ¿Por qué un slug de landing viejo puede mostrar un sistema diferente al esperado?
+
+**Respuesta corta**: Porque el sistema original fue marcado con `replacement_system_id` y el front lo reemplaza automáticamente al cargar la landing.
+
+**Contexto**: `ReplaceSystemHelper` verifica si el sistema de la URL tiene un `replacement_system_id` activo. Si lo tiene, resuelve el sistema vigente, actualiza la transacción con ese sistema y puede reescribir la URL para mostrar el slug nuevo. Esto mantiene operativos links históricos y campañas viejas sin que el usuario perciba el cambio. La fuente de verdad del reemplazo es siempre el backend — el frontend solo aplica la regla que backend expone en `SystemSchema`.
+
+**Fuente**: `02_Flows/landing-for-systems-and-marketing-preloads/`
+
+---
+
 ## ¿Por qué hay notificaciones que llegan con mucho retraso después del evento que las dispara?
 
 **Respuesta corta**: Porque muchas notificaciones pasan por jobs en background con debounce, throttle o lógica de horario laboral antes de enviarse.

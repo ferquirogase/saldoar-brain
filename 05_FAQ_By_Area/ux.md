@@ -94,6 +94,56 @@ Preguntas sobre comportamiento visible de la interfaz, decisiones de componentes
 
 ---
 
+## ¿Cómo puede un usuario ver el estado de su pedido sin estar logueado?
+
+**Respuesta corta**: Ingresando el `mid` y el email del pedido en la pantalla pública de consulta, o accediendo por deep link si tiene el link directo de su transacción.
+
+**Contexto**: Hay dos formas. La primera es `/transaction-states`: el usuario ingresa `mid` + email y el front recupera un `TransactionStatePublic` que muestra el estado sin login. La segunda es por deep link directo (`/t/transactions/v3/{id}/{key}/{mid}/states` o `/instructions`), que abre el pedido en contexto público acotado a esa transacción. En ambos casos el acceso está limitado — no expone recursos de otros pedidos ni del usuario en general.
+
+**Fuente**: `02_Flows/transaction-visibility-and-status/`
+
+---
+
+## ¿Por qué aparece un aviso de validación pendiente en la pantalla del pedido?
+
+**Respuesta corta**: Porque el pedido está en `WAITING_PAYMENT`, el usuario marcó que ya pagó, y todavía no tiene una validación de screenshot aprobada o en revisión.
+
+**Contexto**: El backend evalúa si mostrar `validation_links` combinando tres condiciones: la transacción debe estar en `WAITING_PAYMENT`, debe tener `marked_as_sent = true`, y no debe existir una validación con estado `PRE_APPROVED`, `APPROVED` o `SKIPPED`. Si las tres se cumplen, aparece el aviso para que el usuario suba comprobante. Si ya tiene una validación en proceso, el aviso desaparece aunque el pedido siga en el mismo estado.
+
+**Fuente**: `02_Flows/transaction-visibility-and-status/`
+
+---
+
+## ¿Por qué un link de campaña ya abre la calculadora con un par de sistemas precargado?
+
+**Respuesta corta**: Porque la URL de esa campaña incluye los sistemas y montos como segmentos de ruta, y el front los usa directamente para armar la cotización sin que el usuario elija nada.
+
+**Contexto**: La ruta `/b/{system1}/{system2}/{amount1}/{amount2}` (y variantes con locale) hidrata la calculadora desde la URL. Si el usuario llega por una landing de marketing o un link de campaña con esa estructura, la calculadora arranca ya configurada. Si la URL no trae sistemas, el front intenta rehidratar desde `QuoteSessionService` (cotización previa en sesión) o cae al default por país. Eso explica por qué a veces una calculadora "recuerda" una cotización anterior aunque el usuario no haya elegido nada esta vez.
+
+**Fuente**: `02_Flows/landing-for-systems-and-marketing-preloads/`, `02_Flows/system-selection-and-quote-calculator/`
+
+---
+
+## ¿Por qué a veces no se puede invertir el par de sistemas en la calculadora?
+
+**Respuesta corta**: Porque el sistema origen no puede recibir, o el sistema destino no puede enviar — en ese caso el botón de inversión se bloquea.
+
+**Contexto**: Cada sistema tiene flags `can_send` y `can_receive`. El front verifica si el par invertido sería válido antes de permitir la acción. Si alguna de las dos condiciones falla, la inversión se bloquea visualmente. Cuando sí se permite, el front intercambia los sistemas, ajusta los montos según la operación activa y recalcula. También puede reescribir la URL para reflejar el nuevo par.
+
+**Fuente**: `02_Flows/system-selection-and-quote-calculator/`
+
+---
+
+## ¿Por qué la cotización puede cambiar justo al confirmar el pedido?
+
+**Respuesta corta**: Porque la cotización que ve el usuario en el front es preliminar — el backend recalcula con la tasa actual al guardar, y si cambió devuelve `rate_dropped`.
+
+**Contexto**: La calculadora muestra una cotización local basada en la tasa disponible en ese momento. Cuando el usuario confirma, el backend vuelve a calcular con `TransactionPublicPolicy` usando la tasa vigente en ese instante. Si la tasa cayó entre que el usuario vio la cotización y la confirmó, backend devuelve `rate_dropped` y el front lo muestra como cambio de cotización. No es un error — es el comportamiento esperado para proteger la integridad del par.
+
+**Fuente**: `02_Flows/system-selection-and-quote-calculator/`
+
+---
+
 ## ¿Cuándo el helper/banner contextual dentro de la transacción cambia de contenido?
 
 **Respuesta corta**: Cuando cambia el estado de la transacción — el backend devuelve hasta dos helpers priorizados según el estado actual.
