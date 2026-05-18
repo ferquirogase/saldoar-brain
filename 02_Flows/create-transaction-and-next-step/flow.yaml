@@ -60,6 +60,8 @@ integrations:
   - state notifications
   - state chat opening
 edge_cases:
+  - edge_case_id: payment-disappears-on-to-future-ready
+  - edge_case_id: to-future-ready-looks-stalled
   - same user action in front can land in very different states depending on backend pipes
   - deals bag creation path is not equivalent to manual dashboard creation
   - TO_FUTURE_READY may look like a stalled flow unless copy explains it

@@ -61,6 +61,8 @@ integrations:
   - bot-assisted task handling
   - notification and state systems
 edge_cases:
+  - edge_case_id: chat-visible-but-locked
+  - edge_case_id: to-future-ready-looks-stalled
   - failed operational attempts may fallback into HELD
   - task base state can change while an operator is working
   - public panel replies alter user-visible experience

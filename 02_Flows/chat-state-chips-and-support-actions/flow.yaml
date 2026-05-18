@@ -69,6 +69,9 @@ integrations:
   - adaptive content rendering
   - cache-backed chat availability and chip navigation
 edge_cases:
+  - edge_case_id: chat-visible-but-locked
+  - edge_case_id: simultaneous-orders-omitted
+  - edge_case_id: to-future-ready-looks-stalled
   - same nominal transaction state can yield different helpers and chips
   - users may see a chat area but still be unable to type until backend opens chat
   - chip navigation depends on cache and resets on state changes

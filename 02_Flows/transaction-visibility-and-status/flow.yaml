@@ -73,6 +73,7 @@ integrations:
   - websocket/private channel
   - mercadopago qr
 edge_cases:
+  - edge_case_id: chat-visible-but-locked
   - legacy and current routes coexist
   - same concept is exposed through public status page and transaction detail deep links
   - beforepath abstraction hides important API differences

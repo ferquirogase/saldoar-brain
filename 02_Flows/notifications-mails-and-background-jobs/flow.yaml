@@ -64,6 +64,8 @@ business_rules:
   - state changes can dispatch more jobs and listeners beyond direct user notification
   - background actions triggered by state chips can mutate transactions without a direct ui action at that moment
 edge_cases:
+  - edge_case_id: held-disputed-without-screenshots
+  - edge_case_id: instructions-read-side-effects
   - review states appear under-notified in the standard map
   - multiple notification families coexist: state-based, evidence-based, crm/reminder and special-case templates
   - timing can be hard to explain because of cache checks, throttles, debounces and working-hour logic

@@ -72,6 +72,8 @@ business_rules:
   - when URL context is missing, QuoteSession can rehydrate a previous public quote and keep the user inside the same journey
   - locale, canonical URL and OG metadata are updated as part of navigation, not only as static page config
 edge_cases:
+  - edge_case_id: legacy-system-links-and-replacements
+  - edge_case_id: stale-public-quote-session
   - a stale marketing URL can still open a valid path because replacement systems rewrite legacy ids
   - home and step-b can restore quote context from in-memory session even if the current URL no longer carries full parameters
   - a landing may look static but still depends on live systems, rates or replacement ids from backend

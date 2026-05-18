@@ -71,6 +71,8 @@ business_rules:
   - network can modify the calculated result for crypto-like systems
   - backend remains source of truth and can reject same-system pairs, forbidden pairs, invalid minimums or dropped rates
 edge_cases:
+  - edge_case_id: legacy-system-links-and-replacements
+  - edge_case_id: stale-public-quote-session
   - calculator may default to banco and palpal when route or country bootstrap does not provide a better pair
   - invert is blocked if the current send system cannot receive or current receive system cannot send
   - replacement_system_id can make a historical link open a different visible system

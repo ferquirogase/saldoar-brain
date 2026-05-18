@@ -52,6 +52,7 @@ business_rules:
   - changing destination can split the operational flow into a new transaction rather than editing the old one in place
   - destination refill is constrained by transaction origin and current state
 edge_cases:
+  - edge_case_id: pix-key-late-held
   - valid user account does not guarantee operational destination availability
   - late external validation such as PIX can still move the transaction to HELD
   - systems with account_detail_required add a second readiness gate after account selection

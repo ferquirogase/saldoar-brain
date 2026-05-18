@@ -94,6 +94,7 @@ integrations:
   - hidden pixel tracking
 edge_cases:
   - edge_case_id: vcc-copy-looks-like-balance-reception
+  - edge_case_id: simultaneous-orders-omitted
   - edge_case_id: instructions-read-side-effects
   - edge_case_id: payment-disappears-on-to-future-ready
   - edge_case_id: davivienda-interbank-delay

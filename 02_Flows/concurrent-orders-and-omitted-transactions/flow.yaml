@@ -59,6 +59,8 @@ integrations:
   - debounced state-change dispatcher
   - lock mechanism for requeueing cleanup
 edge_cases:
+  - edge_case_id: simultaneous-orders-omitted
+  - edge_case_id: instructions-read-side-effects
   - UX copy says "two pending orders" while technical threshold depends on user level
   - race conditions may affect exact reproduction order
   - reading instructions changes whether a concurrent order is protected or omittable

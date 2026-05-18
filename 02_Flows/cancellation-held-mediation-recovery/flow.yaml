@@ -62,6 +62,9 @@ business_rules:
   - some canceled or held transactions can recover deleted destinations and return to a held review state
   - disputes can be released back to WAITING_PAYMENT or CREDITED_PAYMENT if reception issues disappear
 edge_cases:
+  - edge_case_id: held-disputed-without-screenshots
+  - edge_case_id: pix-key-late-held
+  - edge_case_id: to-future-ready-looks-stalled
   - review states do not appear to have the same notification coverage as basic lifecycle states
   - deals-bag transactions are explicitly excluded from some destination-recovery logic
   - a user-visible dead end may still be internally recoverable

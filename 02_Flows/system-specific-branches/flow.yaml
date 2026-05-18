@@ -150,6 +150,10 @@ connected_flows:
   - operator-interventions-and-panel-actions
   - accounts-and-destination-selection
 
+edge_cases:
+  - edge_case_id: davivienda-interbank-delay
+  - edge_case_id: vcc-copy-looks-like-balance-reception
+
 references:
   - saldo/app/Transactions/Notifications/StateNotifications/TransactionWaitingPaymentNotification.php
   - saldo/app/Transactions/Notifications/StateNotifications/TransactionWaitingPaymentNotifications/TransactionToAgreementNotification.php
