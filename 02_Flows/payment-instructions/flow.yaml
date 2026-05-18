@@ -8,8 +8,9 @@ abstract: |
   según tipo de operación: transferencia directa, QR de MercadoPago, crypto y balance.
   Incluye el mecanismo dual de marcado de lectura (píxel + política de acceso), los
   efectos internos al marcar instrucciones como leídas, el filtrado de directTransfers1
-  por comportamiento, y los helpers contextuales que modifican la experiencia. Relevante
-  para UX, soporte de pagos y operaciones.
+  por comportamiento, los helpers contextuales que modifican la experiencia, y la
+  lógica del sector de recepción incluyendo la casuística de pagos marcados como
+  no recibidos. Relevante para UX, soporte de pagos y operaciones.
 query_patterns:
   - "¿dónde veo los datos para hacer la transferencia?"
   - "no aparecen las cuentas bancarias para pagar"
@@ -21,6 +22,10 @@ query_patterns:
   - "¿por qué las instrucciones son diferentes según el tipo de operación?"
   - "¿qué es directTransfers1?"
   - "¿qué es el píxel de seguimiento?"
+  - "¿qué pasa cuando el receptor marca un pago como no recibido?"
+  - "¿qué mensaje ve el receptor si marcó que no recibió el pago?"
+  - "el usuario dice que no le llegó el dinero, qué ve en la app?"
+  - "¿qué hace el sistema cuando se reporta un pago no recibido?"
 entry_points:
   - /t/transactions/v3/{transactionId}/{transactionKey}/{transactionMid}/instructions
   - /my/dashboard/transactions/v3/{transactionId}/instructions
@@ -60,6 +65,7 @@ backend_sources:
   - saldo/app/Transactions/Transactions/UseCases/MarkInstructionsReadUseCase.php
   - saldo/app/Transactions/TransactionTemporalValues/TransactionTemporalValuesService.php
   - saldo/app/Transactions/TransactionHelpers/TransactionHelperJsonApi/TransactionHelperService.php
+  - saldo/app/Transactions/TransactionHelpers/HelperRepositories/ReceivedPaymentConfirmationHelperRepository.php
 entities:
   - transaction
   - direct_transfer1
@@ -77,16 +83,25 @@ business_rules:
   - direct_transfer_actions are only allowed if the transfer is not already sent and belongs to the current user/transaction context
   - direct_transfers1 are filtered by behaviour before display
   - agreement QR is fetched through mercadopagoqr endpoint
+  - receive side helper is determined by ReceivedPaymentConfirmationHelperRepository.getReceivedPaymentsStatus()
+  - received=NO on a directTransfer2 falls to still_receiving or all_sent, never to received_unknown
+  - received_unknown requires sent=true AND received=UNKNOWN
+  - when received=NO Saldoar can only consult the counterpart; it does not manage the funds directly
 integrations:
   - mercadopago qr
   - local mark-as-sent state service
   - websocket-driven transaction refresh
   - hidden pixel tracking
 edge_cases:
-  - same flow has multiple UI variants with different components and behaviors
-  - read-tracking is triggered in more than one way
-  - helper banners can substantially alter the experience for the same nominal state
-  - local mark-as-sent state may diverge from backend expectations if not validated end-to-end
+  - edge_case_id: vcc-copy-looks-like-balance-reception
+  - edge_case_id: instructions-read-side-effects
+  - edge_case_id: payment-disappears-on-to-future-ready
+  - edge_case_id: davivienda-interbank-delay
+  - description: same flow has multiple UI variants with different components and behaviors
+  - description: read-tracking is triggered in more than one way
+  - description: helper banners can substantially alter the experience for the same nominal state
+  - description: local mark-as-sent state may diverge from backend expectations if not validated end-to-end
+  - description: received=NO in receive sector shows still_receiving or all_sent helper with no-recibido copy
 unknowns:
   - exact persistence model of MarketAtSendService
   - full catalog of direct_transfer_action values
