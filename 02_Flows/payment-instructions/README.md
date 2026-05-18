@@ -101,6 +101,31 @@ Ese bloque:
 - arma subtitulos distintos segun cantidad y estado de recepcion
 - muestra feedback distinto para fiat, crypto y VCC
 
+#### Marca como no recibido
+
+El receptor puede marcar cada `directTransfer2` como recibido o no recibido.
+
+Cuando marca uno como "no recibido", el campo `received` del registro pasa a `NO`.
+
+`ReceivedPaymentConfirmationHelperRepository` evalua el estado general con `getReceivedPaymentsStatus()`, que devuelve:
+
+- `not_ready`: la transaccion no esta en estado correcto o no tiene transfers
+- `no_transfers`: no existen `directTransfers2`
+- `received_unknown`: al menos un transfer fue marcado como enviado (`sent = true`) y tiene `received = UNKNOWN`
+- `still_receiving`: quedan montos por enviar o transfers sin confirmar — prioridad despues de `received_unknown`
+- `all_sent`: todos los montos fueron enviados y `rest_to_pay <= 0`
+
+Cuando `received = NO`, el status cae a `still_receiving` o `all_sent` — nunca a `received_unknown`, porque ese estado requiere `received = UNKNOWN`.
+
+**Helpers con copy aprobado para cada caso:**
+
+| Estado de `getReceivedPaymentsStatus()` | Copy aprobado |
+|---|---|
+| `still_receiving` + pagos marcados como no recibidos | "Seguimos enviando los pagos restantes. Registramos lo que marcaste como no recibido y nos comunicaremos con la contraparte para consultarlo." |
+| `all_sent` + pagos marcados como no recibidos | "Ya enviamos la totalidad de tu saldo. Registramos lo que marcaste como no recibido y nos comunicaremos con la contraparte para consultarlo." |
+
+El sistema ademas crea una tarea y puede pasar la transaccion del emisor a `HELD_DISPUTED`. Saldoar no gestiona el monto directamente — solo puede consultar con la contraparte.
+
 ### Lectura UX para VCC en recepcion
 
 Cuando el destino es `VCC`, el sector de recepcion no deberia prometer una "recepcion de saldo" en la tarjeta.
@@ -263,6 +288,7 @@ Cuando el usuario abre ayuda y elige una accion alternativa:
 - Como se obtienen los helpers contextuales.
 - Como funciona el camino de "ya envie" y el de "no puedo pagar".
 - Por que soporte puede ver fricciones distintas aunque el pedido este en el mismo paso.
+- Que ve el receptor cuando marca un pago como "no recibido" y como se determina el helper segun el estado general de recepcion.
 
 ## Edge Cases / Riesgos
 
@@ -301,3 +327,4 @@ Cuando el usuario abre ayuda y elige una accion alternativa:
 - `saldo/app/Transactions/Transactions/UseCases/MarkInstructionsReadUseCase.php`
 - `saldo/app/Transactions/TransactionTemporalValues/TransactionTemporalValuesService.php`
 - `saldo/app/Transactions/TransactionHelpers/TransactionHelperJsonApi/TransactionHelperService.php`
+- `saldo/app/Transactions/TransactionHelpers/HelperRepositories/ReceivedPaymentConfirmationHelperRepository.php`

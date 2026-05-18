@@ -1,0 +1,58 @@
+edge_case_id: davivienda-interbank-delay
+name: Davivienda Interbank Delay
+status: v1
+severity: medium
+evidence_level: confirmed
+
+summary: >
+  Cuando un usuario colombiano recibe pagos en su cuenta Davivienda y quien le
+  transfiere opera desde otro banco, la acreditación puede demorar hasta 48 horas
+  por los plazos interbancarios de Colombia. Las transferencias entre cuentas
+  Davivienda son instantáneas. Esta diferencia genera fricción: el emisor pide
+  cambiar el destino para acelerar la confirmación de recepción, lo que afecta al
+  receptor y retrasa el flujo operativo del pedido.
+
+query_patterns:
+  - "¿por qué el usuario pide cambiar el destino Davivienda?"
+  - "¿cuánto tarda en acreditarse un pago a Davivienda desde otro banco?"
+  - "el receptor Davivienda dice que no recibió el pago"
+  - "¿por qué Davivienda demora en confirmar la recepción?"
+  - "el emisor pide cambiar el destino porque tarda en confirmarse"
+  - "demora de 48 horas en pesos colombianos"
+  - "¿qué diferencia hay entre transferir a Davivienda desde Davivienda o desde otro banco?"
+
+connected_flows:
+  - flow-payment-instructions
+  - flow-system-specific-branches
+connected_entities:
+  - direct_transfer1
+  - direct_transfer2
+  - transaction
+connected_domains:
+  - transactions
+  - accounts
+
+triggering_condition:
+  - pedido en pesos colombianos (COP)
+  - sistema asigna destino con cuenta Davivienda al receptor
+  - el emisor opera desde un banco distinto a Davivienda
+
+observed_behavior:
+  - la acreditación en la cuenta Davivienda demora hasta 48 horas
+  - el receptor no confirma recepción de inmediato
+  - el emisor no puede empezar a recibir lo que le corresponde hasta que el receptor confirme
+  - el emisor solicita cambio de destino para acelerar el proceso
+  - el cambio de destino afecta al receptor y genera fricción operativa
+
+classification: comportamiento esperado del sistema bancario colombiano / friccion operativa
+
+copy_aprobado:
+  contexto: mensaje a mostrar al receptor Davivienda en la pantalla de instrucciones
+  texto: >
+    Davivienda procesa transferencias internas al instante. Cuando el pago se
+    realiza desde otros bancos, los tiempos pueden extenderse hasta 48 hs según
+    los plazos interbancarios.
+
+source_of_truth:
+  - 02_Flows/payment-instructions/README.md
+  - 02_Flows/system-specific-branches/README.md

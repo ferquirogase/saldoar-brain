@@ -41,6 +41,7 @@ Campos minimos sugeridos en YAML:
 | `held-disputed-without-screenshots` | comportamiento esperado dificil de explicar | `cancellation-held-mediation-recovery` |
 | `to-future-ready-looks-stalled` | estado valido con apariencia de bloqueo | `create-transaction-and-next-step`, `chat-state-chips-and-support-actions` |
 | `payment-disappears-on-to-future-ready` | friccion UX critica / gap de logica backend | `payment-instructions`, `create-transaction-and-next-step` |
+| `davivienda-interbank-delay` | comportamiento bancario esperado / friccion operativa COP | `payment-instructions`, `system-specific-branches` |
 
 ## Como usar esta carpeta
 
