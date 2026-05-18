@@ -104,6 +104,36 @@ Preguntas sobre acciones del panel, tareas, intervenciones manuales y comportami
 
 ---
 
+## ¿Por qué los usuarios colombianos con cuenta Davivienda piden cambiar el destino del pago?
+
+**Respuesta corta**: Porque Davivienda demora hasta 48 horas en acreditar pagos provenientes de otros bancos, y el emisor no puede avanzar hasta que el receptor confirme recepción.
+
+**Contexto**: Davivienda procesa transferencias internas (Davivienda → Davivienda) de forma instantánea. Cuando el pago viene de otro banco, los plazos interbancarios colombianos pueden extenderse hasta 48 horas. En el flujo de Saldoar, el emisor depende de que el receptor confirme recepción para poder empezar a recibir lo que le corresponde. Si esa confirmación no llega rápido, el emisor prefiere pedir un destino diferente para acelerar el proceso — lo que genera fricción operativa para el receptor Davivienda. No es un bug; es el comportamiento estándar del sistema bancario colombiano.
+
+El copy aprobado para mostrar al receptor en instrucciones de pago es: *"Davivienda procesa transferencias internas al instante. Cuando el pago se realiza desde otros bancos, los tiempos pueden extenderse hasta 48 hs según los plazos interbancarios."*
+
+**Fuente**: `06_Edge_Cases/davivienda-interbank-delay`
+
+---
+
+## ¿Qué ve el receptor cuando marca un pago como "no recibido"?
+
+**Respuesta corta**: Ve un helper distinto según si todavía tiene pagos por llegar o si ya se enviaron todos. En ambos casos, el sistema registra el reporte y Saldoar consulta con la contraparte.
+
+**Contexto**: Cuando el receptor marca uno o más pagos como "no recibido" (`received = NO` en `directTransfer2`), `ReceivedPaymentConfirmationHelperRepository` evalúa el estado general con `getReceivedPaymentsStatus()`. Ese método puede devolver:
+
+- `still_receiving`: quedan montos por enviar o transfers sin confirmar. El helper muestra:
+  *"Seguimos enviando los pagos restantes. Registramos lo que marcaste como no recibido y nos comunicaremos con la contraparte para consultarlo."*
+
+- `all_sent`: todos los montos fueron enviados y no hay pagos pendientes. El helper muestra:
+  *"Ya enviamos la totalidad de tu saldo. Registramos lo que marcaste como no recibido y nos comunicaremos con la contraparte para consultarlo."*
+
+El "no recibido" no genera un estado `received_unknown` — ese requiere que el transfer haya sido marcado como enviado pero sin confirmación todavía. El `received = NO` cae directamente a `still_receiving` o `all_sent` según el contexto. El sistema puede crear una tarea y pasar la transacción del emisor a `HELD_DISPUTED`. Saldoar no maneja el dinero directamente ni puede saber por qué no llegó — depende del servicio bancario externo.
+
+**Fuente**: `02_Flows/payment-instructions`, `06_Edge_Cases/held-disputed-without-screenshots`, `saldo/app/Transactions/TransactionHelpers/HelperRepositories/ReceivedPaymentConfirmationHelperRepository.php`
+
+---
+
 ## ¿Por qué a veces no es claro quién movió un pedido?
 
 **Respuesta corta**: Porque el sistema mezcla acciones de usuarios, bots, reglas automáticas y operadores humanos sobre los mismos estados y tareas.
