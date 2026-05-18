@@ -29,9 +29,21 @@ Responde preguntas de soporte, marketing, UX y producto sobre:
 | Flow | Carpeta | Cubre |
 |---|---|---|
 | Visibilidad y estado de transacción | `02_Flows/transaction-visibility-and-status/` | Consulta pública, deep links, validaciones pendientes, cancelación, redirects legacy |
-| Instrucciones de pago | `02_Flows/payment-instructions/` | Variantes por tipo de operación, lectura dual, efectos internos, helpers |
+| Instrucciones de pago | `02_Flows/payment-instructions/` | Variantes por tipo de operación, lectura dual, efectos internos, helpers, no recibido |
 | Validaciones de identidad | `02_Flows/identity-validations/` | DNI, selfie, Facebook, biométrica (Veriff), screenshot, reglas de bloqueo |
 | Balance: entries y balance general | `02_Flows/balance-entries-and-general-balance/` | Entry, ciclo de vida deposit/withdrawal, por qué el balance general no refleja movimientos pendientes |
+| Cuentas y selección de destino | `02_Flows/accounts-and-destination-selection/` | Creación y reutilización de cuentas, selección de destino, account details |
+| Cancelación, HELD y mediación | `02_Flows/cancellation-held-mediation-recovery/` | Cancelación, estados HELD y HELD_DISPUTED, mediación, recuperación |
+| Chat, chips y acciones de soporte | `02_Flows/chat-state-chips-and-support-actions/` | Estado del chat, chips de UI, acciones disponibles por estado |
+| Pedidos simultáneos y omitidos | `02_Flows/concurrent-orders-and-omitted-transactions/` | Concurrencia de pedidos, transacciones omitidas |
+| Creación de transacción y next step | `02_Flows/create-transaction-and-next-step/` | Creación de pedido, lógica de siguiente paso post-creación |
+| Deals y matching de direct transfers | `02_Flows/deals-and-direct-transfer-matching/` | Deals bag, matching automático, asignación de destinos |
+| Landings y preloads de marketing | `02_Flows/landing-for-systems-and-marketing-preloads/` | Landings públicas por sistema, preloads, SEO |
+| Notificaciones y jobs en background | `02_Flows/notifications-mails-and-background-jobs/` | Mails de estado, jobs, notificaciones push, observers |
+| Intervenciones de operadores | `02_Flows/operator-interventions-and-panel-actions/` | Acciones desde panel, tareas, pipelines de intervención |
+| Creación pública e identity bootstrap | `02_Flows/public-order-creation-and-identity-bootstrap/` | Acceso sin login, contexto por transaction key y user key, creación de identidad desde pedido |
+| Selección de sistema y cotizador | `02_Flows/system-selection-and-quote-calculator/` | Selección de sistemas, cotización pública, sesión de quote |
+| Ramas específicas por sistema | `02_Flows/system-specific-branches/` | Crypto, PIX, VCC, MercadoPago QR, PayPal, Wise, destinos bancarios |
 
 ## Cómo responder preguntas con este repo
 

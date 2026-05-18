@@ -79,9 +79,21 @@ Eso genera un corpus JSONL listo para indexar por documento logico, no por boots
 | Flow | Descripcion |
 |---|---|
 | `transaction-visibility-and-status` | Consulta de estado, deep links, validaciones pendientes, cancelacion, redirects legacy |
-| `payment-instructions` | Instrucciones de pago por tipo de operacion, lectura dual, helpers contextuales |
+| `payment-instructions` | Instrucciones de pago por tipo de operacion, lectura dual, helpers contextuales, no recibido |
 | `identity-validations` | Validaciones de identidad: DNI, selfie, Facebook, biometrica (Veriff), screenshot |
 | `balance-entries-and-general-balance` | Entry, ciclo deposit/withdrawal, por que el balance general no refleja movimientos pendientes |
+| `accounts-and-destination-selection` | Creacion y reutilizacion de cuentas, seleccion de destino, account details |
+| `cancellation-held-mediation-recovery` | Cancelacion, estados HELD y HELD_DISPUTED, mediacion, recuperacion |
+| `chat-state-chips-and-support-actions` | Estado del chat, chips de UI, acciones disponibles por estado |
+| `concurrent-orders-and-omitted-transactions` | Concurrencia de pedidos, transacciones omitidas |
+| `create-transaction-and-next-step` | Creacion de pedido, logica de siguiente paso post-creacion |
+| `deals-and-direct-transfer-matching` | Deals bag, matching automatico, asignacion de destinos |
+| `landing-for-systems-and-marketing-preloads` | Landings publicas por sistema, preloads, SEO |
+| `notifications-mails-and-background-jobs` | Mails de estado, jobs, notificaciones push, observers |
+| `operator-interventions-and-panel-actions` | Acciones desde panel, tareas, pipelines de intervencion |
+| `public-order-creation-and-identity-bootstrap` | Acceso sin login, contexto por transaction key y user key, creacion de identidad desde pedido |
+| `system-selection-and-quote-calculator` | Seleccion de sistemas, cotizacion publica, sesion de quote |
+| `system-specific-branches` | Crypto, PIX, VCC, MercadoPago QR, PayPal, Wise, destinos bancarios |
 
 ## Edge cases documentados
 

@@ -1,6 +1,7 @@
 flow_id: system-specific-branches
 name: System Specific Branches
-status: mapped
+status: v1
+evidence_level: confirmed
 priority: high
 scope: core
 
@@ -48,6 +49,7 @@ branches:
       - QR endpoint and QR generation
       - requires ready agreement address
       - support issue if QR is requested too early
+      - QR is cached for 20 hours via Cache::remember
     components:
       - MercadoPagoQrController
       - MercadoPagoQr
@@ -84,7 +86,8 @@ branches:
       - system1_id = palpal
       - system2_id = palpal
     impact:
-      - operational task on new or long-unused payer account
+      - operational task (HIGH priority) if first use or account unused for more than 1 year
+      - chat is opened when task is created
       - extra pending-payment guidance
       - retention guidance in sent notification
     components:

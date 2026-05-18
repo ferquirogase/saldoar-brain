@@ -1,6 +1,7 @@
 flow_id: public-order-creation-and-identity-bootstrap
 name: Public Order Creation And Identity Bootstrap
-status: mapped
+status: v1
+evidence_level: confirmed
 priority: high
 scope: core
 
@@ -55,10 +56,12 @@ core_entities:
   - File
 
 main_rules:
-  - Public creation can create or reuse user identity by normalized email.
-  - Public creation can create or reuse required accounts for each direction.
+  - Public creation normalizes email (strtolower) and phone (PhoneNumberService::fixPhoneNumber) before lookup.
+  - Public creation creates or reuses UserX by normalized email; creates account1 and account2 via findAccountOrCreate.
   - Network can be inferred from account address in public policy.
   - Transaction key context is limited to the linked transaction and its accounts.
+  - AccountSchema restricts visible/editable accounts to account1_id and account2_id in transaction context; falls back to user_id if no transaction.
+  - AccountDetailPolicy only allows creating detail for accounts linked to the current transaction; falls back to user ownership when no transaction context.
   - User key context is broader and works over user-linked resources.
   - Authenticated creation applies ownership and system-match checks on existing user accounts.
 
